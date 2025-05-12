@@ -1,0 +1,537 @@
+/* 全体のリセットとフォント設定 */
+:root {
+  --primary-color: #1a73e8;
+  --secondary-color: #5f6368;
+  --background-color: #ffffff;
+  --text-color: #202124;
+  --hover-color: #f1f3f4;
+  --active-color: #e8f0fe;
+  --border-color: #dadce0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --dropdown-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  background-color: #f9f9f9;
+}
+
+/* ログインページではデフォルトのヘッダーを表示する */
+body.login-page .navbar.navbar-default,
+body.login-page header .navbar.navbar-default {
+  display: block !important;
+}
+
+/* ログインページ以外では、WebClassのデフォルトヘッダーを非表示 */
+header .navbar.navbar-default {
+  display: none !important;
+}
+
+/* サイドの「リンク」ブロックを強制的に非表示 */
+.side-block-title:contains('リンク'),
+h4.side-block-title:contains('リンク'),
+.side-block-title:contains('課題実施状況一覧'),
+h4.side-block-title:contains('課題実施状況一覧'),
+.side-block-outer h4:contains('リンク'),
+.side-block-outer h4:contains('課題実施状況一覧') {
+  display: none !important;
+}
+
+.side-block-title:contains('リンク') ~ .side-block-content,
+h4.side-block-title:contains('リンク') ~ .side-block-content,
+.side-block-outer h4:contains('リンク') ~ .side-block-content,
+.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
+h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
+.side-block-outer h4:contains('課題実施状況一覧') ~ .side-block-content {
+  display: none !important;
+}
+
+/* 下部のリンクブロックを非表示 */
+.side-block-outer.hidden-sm.hidden-md.hidden-lg {
+  display: none !important;
+}
+
+/* カスタムヘッダーのスタイル */
+.custom-header {
+  background-color: var(--background-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 64px;
+}
+
+/* 右側のナビゲーションコンテナ */
+.header-right-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* ヘッダーのアイコン */
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--secondary-color);
+  text-decoration: none;
+  margin: 0 4px;
+  transition: background-color 0.2s;
+}
+
+.header-icon:hover {
+  background-color: var(--hover-color);
+}
+
+.header-icon .material-icons {
+  font-size: 24px;
+}
+
+/* メインナビゲーション */
+.main-nav {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-right: 24px;
+}
+
+.main-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-menu li {
+  margin: 0 4px;
+}
+
+.main-menu a {
+  display: block;
+  padding: 8px 16px;
+  color: var(--secondary-color);
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.main-menu a:hover {
+  background-color: var(--hover-color);
+  color: var(--text-color);
+}
+
+.main-menu a.active {
+  color: var(--primary-color);
+  background-color: var(--active-color);
+}
+
+/* ユーティリティナビゲーション（アイコンのみ） */
+.utility-nav {
+  margin-left: 8px;
+}
+
+.utility-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.utility-menu li {
+  margin: 0 4px;
+}
+
+.utility-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.utility-menu a:hover {
+  background-color: var(--hover-color);
+}
+
+.utility-menu .material-icons {
+  font-size: 24px;
+}
+
+/* ヘルプメニュー - ドロップダウンスタイル */
+.help-nav {
+  position: relative;
+}
+
+.help-dropdown {
+  position: relative;
+  margin-right: 8px;
+}
+
+.help-dropdown-button {
+  background-color: transparent;
+  border: none;
+  color: var(--secondary-color);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.help-dropdown-button:hover {
+  background-color: var(--hover-color);
+}
+
+.help-dropdown-button .material-icons {
+  font-size: 18px;
+  margin-left: 4px;
+}
+
+.help-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  box-shadow: var(--dropdown-shadow);
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 8px 0;
+  display: none;
+  z-index: 1001;
+}
+
+.help-menu.active {
+  display: block;
+}
+
+.help-menu li {
+  margin: 0;
+}
+
+.help-menu a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+.help-menu a:hover {
+  background-color: var(--hover-color);
+}
+
+/* 科目検索の二重表示を防止 */
+.col-sm-9 br + #search_courses_left,
+.col-sm-9 #search_courses_left + br {
+  display: none !important;
+}
+
+/* メインページのレイアウト調整 */
+.col-sm-3 #UserTopInfo {
+  margin-bottom: 20px !important;
+  width: 100%;
+}
+
+.col-sm-3 .side-block-content select.form-control {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* 左カラム内の表示する学期セクションのスタイル */
+#year-selector-container .side-block-content {
+  padding: 10px;
+}
+
+#year-selector-container select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px;
+}
+
+/* お知らせの表示改善 */
+.improved-info .info-list li {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.improved-info .info-list li .data {
+  display: block;
+  margin-top: 6px !important;
+  float: none !important;
+  color: #666;
+}
+
+.improved-info .info-list li .exhibitionInfo {
+  padding-top: 4px;
+}
+
+.improved-info .info-list li .title {
+  display: block;
+  font-weight: 500;
+}
+
+.improved-info #NewestInformations a[href*="informations.php"] {
+  display: block;
+  text-align: right;
+  padding: 8px 16px;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* 検索ボックスのスタイル調整 */
+.side-block-content #search_courses_left_new {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.side-block-content #search_courses_left_new:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* メインコンテンツの余白調整 */
+main {
+  padding-top: 16px;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 16px;
+  }
+  
+  .main-nav {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .main-menu {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .main-menu li {
+    margin: 4px;
+  }
+  
+  .header-right-container {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  
+  .utility-nav {
+    margin-left: 8px;
+  }
+  
+  .help-menu {
+    width: 100%;
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+    margin-top: 8px;
+  }
+}
+
+/* 科目リストの改善 */
+.courseTree {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px !important;
+}
+
+.courseTree-levelTitle {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+.courseList li {
+  border-bottom: 1px solid var(--border-color);
+  background-color: white !important;
+  transition: background-color 0.2s;
+}
+
+.courseList li:hover {
+  background-color: var(--hover-color) !important;
+}
+
+.courseList li a {
+  padding: 12px 16px !important;
+  color: var(--text-color);
+  display: block;
+  text-decoration: none;
+}
+
+/* お知らせ部分の改善 */
+#UserTopInfo {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  border: none !important;
+}
+
+#UserTopInfo .page-header {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  padding: 12px 16px !important;
+  font-size: 16px !important;
+  font-weight: 500;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+}
+
+.info-list li {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-list li a.title {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-list li a.title:hover {
+  text-decoration: underline;
+}
+
+/* 今日の授業のハイライト */
+.today-class {
+  background-color: #e3f2fd !important;
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+.today-class .course-title a {
+  color: #0d47a1 !important;
+  font-weight: 500 !important;
+}
+
+/* 現在の授業時間帯のハイライト */
+.current-period {
+  background-color: #e8f5e9 !important;
+  border-left: 4px solid #2e7d32 !important;
+}
+
+.current-period .course-title a {
+  color: #2e7d32 !important;
+  font-weight: bold !important;
+}
+
+/* 時間情報のスタイル */
+.course-time-info {
+  font-size: 0.85em;
+  color: #666;
+  margin-left: 5px;
+}
+
+/* 授業時間帯の凡例 */
+.class-time-legend {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.class-time-legend h5 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.legend-table {
+  width: 100%;
+  margin-bottom: 10px;
+  border-collapse: collapse;
+}
+
+.legend-table th, .legend-table td {
+  padding: 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.legend-table th {
+  text-align: left;
+  color: #666;
+  font-weight: 500;
+}
+
+.today-legend, .current-legend {
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+
+.today-class-sample {
+  color: var(--primary-color);
+  margin-right: 5px;
+}
+
+.current-period-sample {
+  color: #2e7d32;
+  margin-right: 5px;
+}
+
+/* フッターのカスタマイズリンク */
+.ft-footer_custom {
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.ft-footer_custom a {
+  color: #666;
+  text-decoration: none;
+}
+
+.ft-footer_custom a:hover {
+  text-decoration: underline;
+  color: var(--primary-color);
+}
