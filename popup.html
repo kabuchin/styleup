@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StyleUp 設定</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1a73e8;
+      --secondary-color: #5f6368;
+      --background-color: #ffffff;
+      --text-color: #202124;
+      --hover-color: #f1f3f4;
+      --active-color: #e8f0fe;
+      --border-color: #dadce0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      width: 300px;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+    }
+    body.theme-dark {
+      --primary-color: #8ab4f8;
+      --secondary-color: #9aa0a6;
+      --background-color: #202124;
+      --text-color: #e8eaed;
+      --hover-color: #303134;
+      --active-color: #3c4043;
+      --border-color: #5f6368;
+    }
+    .popup-header {
+      background-color: var(--background-color);
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex; /* アイコンとタイトルを横並びにするためにFlexboxを使用 */
+      align-items: center; /* 垂直方向の中央寄せ */
+    }
+    .app-icon { /* アイコン用のスタイルを追加 */
+        width: 24px; /* アイコンのサイズ調整 */
+        height: 24px;
+        margin-right: 12px; /* タイトルとの間にスペースを空ける */
+    }
+    .popup-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+    .popup-content {
+      padding: 16px;
+      background-color: var(--background-color);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: var(--secondary-color);
+    }
+    .theme-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 8px;
+      margin-bottom: 16px;
+    }
+    .theme-option {
+      border: 2px solid transparent;
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .theme-option.active {
+      border-color: var(--primary-color);
+    }
+    .theme-option:hover {
+      background-color: var(--hover-color);
+    }
+    .color-preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin: 0 auto 4px;
+    }
+    .blue-preview {
+      background-color: #1a73e8;
+    }
+    .green-preview {
+      background-color: #0f9d58;
+    }
+    .red-preview {
+      background-color: #d93025;
+    }
+    .purple-preview {
+      background-color: #673ab7;
+    }
+    .dark-preview {
+      background-color: #202124;
+      border: 1px solid #9aa0a6;
+    }
+    .theme-name {
+      font-size: 12px;
+      color: var(--text-color);
+    }
+    .footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--secondary-color);
+      text-align: center;
+      background-color: var(--background-color);
+    }
+    .footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-header">
+    <img src="./icons/icon-128.png" alt="StyleUp Icon" class="app-icon">
+    <h1 class="popup-title">StyleUp for WebClass</h1>
+  </div>
+
+  <div class="popup-content">
+    <h2 class="section-title">テーマカラー</h2>
+    <div class="theme-options">
+      <div class="theme-option" data-theme="default">
+        <div class="color-preview blue-preview"></div>
+        <div class="theme-name">ブルー</div>
+      </div>
+      <div class="theme-option" data-theme="theme-green">
+        <div class="color-preview green-preview"></div>
+        <div class="theme-name">グリーン</div>
+      </div>
+      <div class="theme-option" data-theme="theme-red">
+        <div class="color-preview red-preview"></div>
+        <div class="theme-name">レッド</div>
+      </div>
+      <div class="theme-option" data-theme="theme-purple">
+        <div class="color-preview purple-preview"></div>
+        <div class="theme-name">パープル</div>
+      </div>
+      <div class="theme-option" data-theme="theme-dark">
+        <div class="color-preview dark-preview"></div>
+        <div class="theme-name">ダーク</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    StyleUp for WebClass by <a href="https://github.com/kabuchin/" target="_blank">kabuchin</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

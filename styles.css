@@ -1,5 +1,6 @@
 /* 全体のリセットとフォント設定 */
 :root {
+  /* デフォルトテーマ（ブルー） */
   --primary-color: #1a73e8;
   --secondary-color: #5f6368;
   --background-color: #ffffff;
@@ -9,6 +10,351 @@
   --border-color: #dadce0;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --dropdown-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  --highlight-color: #e3f2fd;
+  --highlight-border: #1a73e8;
+  --current-highlight: #e8f5e9;
+  --current-border: #2e7d32;
+  --footer-background: #f8f9fa;  /* フッターの背景色を追加 */
+  --primary-color-rgb: 26, 115, 232;  /* #1a73e8 のRGB値 */
+}
+
+/* グリーンテーマ */
+body.theme-green {
+  --primary-color: #0f9d58;
+  --secondary-color: #5f6368;
+  --hover-color: #e6f4ea;
+  --active-color: #ceead6;
+  --highlight-color: #e6f4ea;
+  --highlight-border: #0f9d58;
+  --current-highlight: #d7f8ec;
+  --current-border: #0f9d58;
+  --footer-background: #f1f8f1;  /* グリーンテーマのフッター背景色 */
+  --primary-color-rgb: 15, 157, 88;  /* #0f9d58 のRGB値 */
+}
+
+/* レッドテーマ */
+body.theme-red {
+  --primary-color: #d93025;
+  --secondary-color: #5f6368;
+  --hover-color: #fce8e6;
+  --active-color: #fad2cf;
+  --highlight-color: #fce8e6;
+  --highlight-border: #d93025;
+  --current-highlight: #ffebee;
+  --current-border: #c62828;
+  --footer-background: #fdf5f5;  /* レッドテーマのフッター背景色 */
+  --primary-color-rgb: 217, 48, 37;  /* #d93025 のRGB値 */
+}
+
+/* パープルテーマ */
+body.theme-purple {
+  --primary-color: #673ab7;
+  --secondary-color: #5f6368;
+  --hover-color: #f3e5f5;
+  --active-color: #e1bee7;
+  --highlight-color: #f3e5f5;
+  --highlight-border: #673ab7;
+  --current-highlight: #ede7f6;
+  --current-border: #673ab7;
+  --primary-color-rgb: 103, 58, 183;  /* #673ab7 のRGB値 */
+}
+
+/* ダークモードテーマ */
+body.theme-dark {
+  --primary-color: #8ab4f8;
+  --secondary-color: #9aa0a6;
+  --background-color: #202124;
+  --text-color: #e8eaed;
+  --hover-color: #303134;
+  --active-color: #3c4043;
+  --border-color: #5f6368;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --dropdown-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --highlight-color: #283142;
+  --highlight-border: #8ab4f8;
+  --current-highlight: #1e3a29;
+  --current-border: #81c995;
+  --footer-background: #303134;  /* ダークモードのフッター背景色 */
+  --primary-color-rgb: 138, 180, 248;  /* #8ab4f8 のRGB値 */
+
+  /* ページ全体の背景色を変更 */
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+/* ダークモード時のスタイル調整 */
+body.theme-dark .custom-header {
+  background-color: #202124;
+  border-bottom: 1px solid #3c4043;
+}
+
+body.theme-dark .main-menu a {
+  color: #9aa0a6;
+}
+
+body.theme-dark .main-menu a:hover {
+  background-color: #303134;
+  color: #e8eaed;
+}
+
+body.theme-dark .help-dropdown-button,
+body.theme-dark .theme-switcher-button {
+  color: #9aa0a6;
+}
+
+body.theme-dark .help-menu,
+body.theme-dark .theme-menu {
+  background-color: #303134;
+  border: 1px solid #5f6368;
+}
+
+body.theme-dark .container-fluid,
+body.theme-dark .container {
+  background-color: #202124 !important;
+}
+
+body.theme-dark table,
+body.theme-dark .table {
+  color: #e8eaed;
+}
+
+body.theme-dark input, 
+body.theme-dark select, 
+body.theme-dark textarea {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark a {
+  color: #8ab4f8;
+}
+
+body.theme-dark .btn-default {
+  background-color: #303134;
+  color: #e8eaed;
+  border-color: #5f6368;
+}
+
+body.theme-dark .btn-default:hover {
+  background-color: #3c4043;
+}
+
+body.theme-dark .navbar-default {
+  background-color: #202124;
+  border-color: #3c4043;
+}
+
+body.theme-dark .panel {
+  background-color: #303134;
+  border-color: #5f6368;
+}
+
+body.theme-dark .panel-heading {
+  background-color: #3c4043;
+  border-color: #5f6368;
+}
+
+body.theme-dark .panel-body {
+  background-color: #303134;
+}
+
+body.theme-dark .modal-content {
+  background-color: #303134;
+  border-color: #5f6368;
+}
+
+body.theme-dark .modal-header,
+body.theme-dark .modal-footer {
+  border-color: #5f6368;
+}
+
+body.theme-dark .courseList li {
+  border-bottom: 1px solid #3c4043;
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .courseList li a {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .class-time-legend {
+  background: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .side-block {
+  background-color: #303134 !important;
+  border: 1px solid #5f6368 !important;
+  margin-bottom: 15px !important;
+}
+
+body.theme-dark .side-block-title,
+body.theme-dark h4.side-block-title {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  padding: 10px !important;
+  border-bottom: 1px solid #5f6368 !important;
+}
+
+body.theme-dark .side-block-content {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  padding: 10px !important;
+}
+
+body.theme-dark .course-info,
+body.theme-dark .course-time-info {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark #UserTopInfo {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #UserTopInfo .page-header {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .info-list li {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .info-list li .data,
+body.theme-dark .info-list li .exhibitionInfo {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark .info-list li a.title {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .legend-table th {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark main {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark h1, 
+body.theme-dark h2, 
+body.theme-dark h3, 
+body.theme-dark h4, 
+body.theme-dark h5, 
+body.theme-dark h6,
+body.theme-dark .page-header {
+  color: #e8eaed !important;
+}
+
+body.theme-dark footer {
+  background-color: #303134 !important;
+  color: #9aa0a6 !important;
+  border-top-color: #5f6368 !important;
+}
+
+body.theme-dark .ft-footer_custom a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark select option {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .courseTree-levelTitle {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .today-class-sample {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .current-period-sample {
+  color: #81c995 !important;
+}
+
+/* ダークモード追加スタイル - コースページ対応 */
+body.theme-dark .cl-contentsList_content,
+body.theme-dark .list-group-item {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .cl-contentsList_categoryLabel,
+body.theme-dark .cl-contentsList_new,
+body.theme-dark .cm-contentsList_contentDetailListItemLabel {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark .cm-contentsList_contentName a,
+body.theme-dark .cl-contentsList_content a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .cm-contentsList_contentName a:hover,
+body.theme-dark .cl-contentsList_content a:hover {
+  text-decoration: underline;
+}
+
+body.theme-dark .panel-default > .panel-heading {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .panel-title {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .tab-pane {
+  background-color: #202124 !important;
+}
+
+body.theme-dark .cm-sideNav_folderLink {
+  color: #8ab4f8 !important;
+  background-color: transparent !important;
+}
+
+body.theme-dark .cm-sideNav_folderLink:hover {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #js-contents .page-header {
+  border-bottom-color: #3c4043 !important;
+}
+
+/* モーダル対応 */
+body.theme-dark #courseLearningLayoutModal .modal-content {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #courseLearningLayoutModal .modal-header {
+  border-bottom-color: #5f6368 !important;
+}
+
+body.theme-dark #courseLearningLayoutModal .modal-body-frame {
+  background-color: #303134 !important;
+}
+
+/* ドロップダウンボタンがクリックできない問題対策 */
+.dropdown-toggle:focus,
+.dropdown-toggle:active {
+  outline: none !important;
+}
+
+/* モーダル内のiframeスタイル調整 */
+.modal-body-frame {
+  border: none !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 body {
@@ -81,7 +427,7 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
   margin-left: auto;
 }
 
-/* ヘッダーのアイコン */
+/* ヘッダーの共通アイコン - 統一スタイル */
 .header-icon {
   display: flex;
   align-items: center;
@@ -90,17 +436,120 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
   height: 40px;
   border-radius: 50%;
   color: var(--secondary-color);
-  text-decoration: none;
   margin: 0 4px;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
   transition: background-color 0.2s;
+  outline: none;
 }
 
 .header-icon:hover {
   background-color: var(--hover-color);
+  color: var(--text-color);
+  text-decoration: none;
 }
 
 .header-icon .material-icons {
   font-size: 24px;
+}
+
+/* ヘッダーアイコンのダークモード対応 */
+body.theme-dark .header-icon {
+  color: #9aa0a6;
+}
+
+body.theme-dark .header-icon:hover {
+  background-color: #303134;
+  color: #e8eaed;
+}
+
+/* ドロップダウン用の共通スタイル */
+.header-dropdown {
+  position: relative;
+}
+
+/* ドロップダウンメニューの共通スタイル */
+.header-dropdown-menu {
+  position: absolute;
+  top: 44px;
+  right: -5px;
+  width: 200px;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  box-shadow: var(--dropdown-shadow);
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 8px 0;
+  display: none;
+  z-index: 1001;
+}
+
+.header-dropdown-menu.active {
+  display: block;
+}
+
+.header-dropdown-menu li {
+  margin: 0;
+  padding: 0;
+}
+
+.header-dropdown-menu a,
+.header-dropdown-menu button {
+  width: 100%;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: block;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-dropdown-menu a:hover,
+.header-dropdown-menu button:hover {
+  background-color: var(--hover-color);
+}
+
+/* カラープレビューのスタイル */
+.color-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 12px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.blue-preview { background-color: #1a73e8; }
+.green-preview { background-color: #0f9d58; }
+.red-preview { background-color: #d93025; }
+.purple-preview { background-color: #673ab7; }
+.dark-preview {
+  background-color: #202124;
+  border: 1px solid #9aa0a6;
+}
+
+/* ダークモードでのドロップダウンメニュー */
+body.theme-dark .header-dropdown-menu {
+  background-color: #303134;
+  border: 1px solid #5f6368;
+}
+
+body.theme-dark .header-dropdown-menu a,
+body.theme-dark .header-dropdown-menu button {
+  color: #e8eaed;
+}
+
+body.theme-dark .header-dropdown-menu a:hover,
+body.theme-dark .header-dropdown-menu button:hover {
+  background-color: #3c4043;
 }
 
 /* メインナビゲーション */
@@ -118,6 +567,7 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
   margin-right: 24px;
 }
 
+/* メインメニュー改善 */
 .main-menu {
   display: flex;
   list-style: none;
@@ -126,27 +576,82 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
 }
 
 .main-menu li {
-  margin: 0 4px;
+  margin: 0 2px;  /* 項目間のマージンを少し狭く */
 }
 
 .main-menu a {
   display: block;
-  padding: 8px 16px;
+  padding: 8px 14px;  /* パディングを調整 */
   color: var(--secondary-color);
   text-decoration: none;
   border-radius: 4px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  font-size: 14px;  /* フォントサイズを調整 */
+  transition: all 0.2s ease;  /* スムーズな遷移効果 */
+  border-bottom: 2px solid transparent;  /* 下線用のスペース確保 */
 }
 
+/* ハイライト表示を薄い背景色と下線の組み合わせに変更 */
+.main-menu a.active {
+  color: var(--primary-color);
+  background-color: rgba(var(--primary-color-rgb), 0.08);  /* 薄い背景色 */
+  border-bottom: 2px solid var(--primary-color);  /* 下線でアクティブ表示 */
+}
+
+/* ホバー効果も下線スタイルに合わせる */
 .main-menu a:hover {
   background-color: var(--hover-color);
   color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);  /* ホバー時も薄い下線 */
 }
 
-.main-menu a.active {
+/* ダークモード対応 */
+body.theme-dark .main-menu a {
+  color: #9aa0a6;
+}
+
+body.theme-dark .main-menu a:hover {
+  background-color: #303134;
+  color: #e8eaed;
+  border-bottom-color: #5f6368;
+}
+
+body.theme-dark .main-menu a.active {
   color: var(--primary-color);
-  background-color: var(--active-color);
+  background-color: rgba(138, 180, 248, 0.1);  /* ダークモード用薄い背景色 */
+  border-bottom-color: var(--primary-color);
+}
+
+/* ドロップダウン付きのメニュー項目 */
+.dropdown-container {
+  position: relative;
+}
+
+/* ドロップダウンボタンをaタグスタイルに合わせる */
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.dropdown-toggle:hover {
+  background-color: var(--hover-color);
+  color: var(--text-color);
+  border-bottom-color: var(--border-color);
+}
+
+.dropdown-toggle .material-icons {
+  font-size: 18px;
+  margin-left: 4px;
 }
 
 /* ユーティリティナビゲーション（アイコンのみ） */
@@ -199,7 +704,6 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
   background-color: transparent;
   border: none;
   color: var(--secondary-color);
-  padding: 8px 12px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -220,8 +724,8 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
 
 .help-menu {
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 44px;
+  right: -5px;
   width: 220px;
   background-color: var(--background-color);
   border-radius: 4px;
@@ -252,6 +756,101 @@ h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
 
 .help-menu a:hover {
   background-color: var(--hover-color);
+}
+
+/* テーマ切替メニュー */
+.theme-switcher {
+  position: relative;
+  margin-right: 8px;
+}
+
+.theme-switcher-button {
+  background-color: transparent;
+  border: none;
+  color: var(--secondary-color);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.theme-switcher-button:hover {
+  background-color: var(--hover-color);
+}
+
+.theme-switcher-button .material-icons {
+  font-size: 24px;
+  margin: 0;
+}
+
+.theme-menu {
+  position: absolute;
+  top: 44px;
+  right: -5px;
+  width: 180px;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  box-shadow: var(--dropdown-shadow);
+  margin: 4px 0 0 0;
+  padding: 8px 0;
+  display: none;
+  z-index: 1001;
+  list-style: none;
+}
+
+.theme-menu.active {
+  display: block;
+}
+
+.theme-menu li {
+  margin: 0;
+  padding: 0;
+}
+
+.theme-menu li button {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 8px 16px;
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.theme-menu li button:hover {
+  background-color: var(--hover-color);
+}
+
+.theme-menu li button .color-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.theme-menu li button .blue-preview {
+  background-color: #1a73e8;
+}
+
+.theme-menu li button .green-preview {
+  background-color: #0f9d58;
+}
+
+.theme-menu li button .red-preview {
+  background-color: #d93025;
+}
+
+.theme-menu li button .purple-preview {
+  background-color: #673ab7;
+}
+
+.theme-menu li button .dark-preview {
+  background-color: #202124;
+  border: 1px solid #9aa0a6;
 }
 
 /* 科目検索の二重表示を防止 */
@@ -332,47 +931,98 @@ main {
   padding-top: 16px;
 }
 
-/* レスポンシブデザイン */
-@media (max-width: 768px) {
-  .nav-container {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 8px 16px;
-  }
-  
-  .main-nav {
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
-  }
-  
-  .main-menu {
-    flex-wrap: wrap;
-    width: 100%;
-    margin-top: 8px;
-  }
-  
-  .main-menu li {
-    margin: 4px;
-  }
-  
-  .header-right-container {
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 8px;
-  }
-  
-  .utility-nav {
-    margin-left: 8px;
-  }
-  
-  .help-menu {
-    width: 100%;
-    position: static;
-    box-shadow: none;
-    border: 1px solid var(--border-color);
-    margin-top: 8px;
-  }
+/* フッタースタイルの統一 - より強力に設定 */
+footer, 
+.ft-footer,
+footer *,
+.ft-footer *,
+.ft-footer .container,
+.ft-footer .container.text-center,
+footer .container,
+footer .container.text-center {
+  background-color: var(--footer-background) !important;
+  color: var(--secondary-color) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+/* フッターのPowered by WebClass部分 */
+.ft-footer_message {
+  background-color: transparent !important;
+  color: var(--secondary-color) !important;
+  margin-bottom: 5px !important;
+}
+
+/* フッターのカスタマイズリンク強化 */
+.ft-footer_custom {
+  margin-top: 5px;
+  font-size: 12px;
+  background-color: transparent !important;
+}
+
+.ft-footer_custom a {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+  background-color: transparent !important;
+}
+
+body.theme-dark .ft-footer,
+body.theme-dark .ft-footer .container,
+body.theme-dark footer,
+body.theme-dark footer .container {
+  background-color: #303134 !important;
+  color: #9aa0a6 !important;
+  border-top-color: #5f6368 !important;
+}
+
+/* フッター内の全要素のスタイル統一 */
+.ft-footer .container,
+.ft-footer .container.text-center,
+.ft-footer .container.text-center p,
+.ft-footer .ft-footer_message,
+footer .container,
+footer .container.text-center,
+footer .container.text-center p,
+footer .ft-footer_message {
+  background-color: var(--footer-background) !important;
+  color: var(--secondary-color) !important;
+}
+
+body.theme-dark footer, 
+body.theme-dark .ft-footer {
+  background-color: #303134 !important;
+  color: #9aa0a6 !important;
+  border-top-color: #5f6368 !important;
+}
+
+/* フッター内の要素のスタイル */
+footer p,
+.ft-footer p,
+footer div,
+.ft-footer div {
+  color: var(--secondary-color) !important;
+  background-color: transparent !important;
+}
+
+/* フッターのカスタマイズリンク */
+.ft-footer_custom {
+  margin-top: 5px;
+  font-size: 12px;
+  background-color: var(--footer-background) !important;
+}
+
+.ft-footer_custom a {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+  background-color: transparent !important;
+}
+
+.ft-footer_custom a:hover {
+  text-decoration: underline;
+  color: var(--primary-color);
+}
+
+body.theme-dark .ft-footer_custom a {
+  color: #8ab4f8 !important;
 }
 
 /* 科目リストの改善 */
@@ -407,61 +1057,25 @@ main {
   text-decoration: none;
 }
 
-/* お知らせ部分の改善 */
-#UserTopInfo {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 2px var(--shadow-color);
-  border: none !important;
-}
-
-#UserTopInfo .page-header {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  padding: 12px 16px !important;
-  font-size: 16px !important;
-  font-weight: 500;
-}
-
-.info-list {
-  list-style: none;
-  padding: 0;
-}
-
-.info-list li {
-  padding: 12px 16px !important;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.info-list li a.title {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.info-list li a.title:hover {
-  text-decoration: underline;
-}
-
-/* 今日の授業のハイライト */
+/* 今日の授業のハイライト - テーマ変数使用 */
 .today-class {
-  background-color: #e3f2fd !important;
-  border-left: 4px solid var(--primary-color) !important;
+  background-color: var(--highlight-color) !important;
+  border-left: 4px solid var(--highlight-border) !important;
 }
 
 .today-class .course-title a {
-  color: #0d47a1 !important;
+  color: var(--primary-color) !important;
   font-weight: 500 !important;
 }
 
-/* 現在の授業時間帯のハイライト */
+/* 現在の授業時間帯のハイライト - テーマ変数使用 */
 .current-period {
-  background-color: #e8f5e9 !important;
-  border-left: 4px solid #2e7d32 !important;
+  background-color: var(--current-highlight) !important;
+  border-left: 4px solid var(--current-border) !important;
 }
 
 .current-period .course-title a {
-  color: #2e7d32 !important;
+  color: var(--primary-color) !important;
   font-weight: bold !important;
 }
 
@@ -505,6 +1119,31 @@ main {
   font-weight: 500;
 }
 
+body.theme-dark .legend-table th, 
+body.theme-dark .legend-table td {
+  border-bottom: 1px solid #3c4043;
+}
+
+body.theme-dark .info-list li {
+  border-bottom: 1px solid #3c4043;
+}
+
+body.theme-dark .courseList li {
+  border-bottom: 1px solid #3c4043;
+  background-color: #303134 !important;
+}
+
+body.theme-dark .courseList li:hover {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark #UserTopInfo,
+body.theme-dark .class-time-legend,
+body.theme-dark .side-block {
+  background-color: #303134;
+  border-color: #5f6368;
+}
+
 .today-legend, .current-legend {
   font-size: 0.9em;
   margin-top: 4px;
@@ -524,14 +1163,601 @@ main {
 .ft-footer_custom {
   margin-top: 5px;
   font-size: 12px;
+  background-color: var(--footer-background) !important;
 }
 
 .ft-footer_custom a {
-  color: #666;
+  color: var(--primary-color) !important;
   text-decoration: none;
+  background-color: transparent !important;
 }
 
 .ft-footer_custom a:hover {
   text-decoration: underline;
   color: var(--primary-color);
+}
+
+/* コースページのドロップダウンメニュースタイル */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-toggle:hover {
+  background-color: var(--hover-color);
+  color: var(--text-color);
+}
+
+.dropdown-toggle .material-icons {
+  font-size: 18px;
+  margin-left: 4px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  box-shadow: var(--dropdown-shadow);
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 8px 0;
+  min-width: 220px;
+  display: none;
+  z-index: 1001;
+}
+
+.dropdown-menu.active {
+  display: block;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu a:hover {
+  background-color: var(--hover-color);
+}
+
+body.theme-dark .dropdown-toggle {
+  color: #9aa0a6;
+}
+
+body.theme-dark .dropdown-toggle:hover {
+  background-color: #303134;
+  color: #e8eaed;
+}
+
+body.theme-dark .dropdown-menu {
+  background-color: #303134;
+  border: 1px solid #5f6368;
+}
+
+body.theme-dark .dropdown-menu a {
+  color: #e8eaed;
+}
+
+body.theme-dark .dropdown-menu a:hover {
+  background-color: #3c4043;
+}
+
+/* ダークモード拡張スタイル - 未適用要素対応 */
+body.theme-dark tr.info th,
+body.theme-dark tr.unittitle.info th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark tr.foot th,
+body.theme-dark tr.foot td {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark table#PersonalScoreSheet th,
+body.theme-dark table#PersonalScoreSheet td {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark table#PersonalScoreSheet tr.unittitle:not(:first-child) th {
+  border-top: 3px double #5f6368 !important;
+}
+
+/* メッセージページ対応 */
+body.theme-dark .pkgtitle,
+body.theme-dark dt.bgc_main,
+body.theme-dark .bgc_main {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .navi {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .navi dt {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .navi dd {
+  border-color: #5f6368 !important;
+  background-color: #303134 !important;
+}
+
+body.theme-dark .navi dd a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .navi dd.active {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark td[bgcolor="#EEEEEE"],
+body.theme-dark table.editinfo td {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark input[type="submit"],
+body.theme-dark input[type="button"],
+body.theme-dark button {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark input[type="submit"]:hover,
+body.theme-dark input[type="button"]:hover,
+body.theme-dark button:hover {
+  background-color: #4b5053 !important;
+}
+
+body.theme-dark .msg {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .content {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+/* テスト結果ページの追加対応 */
+body.theme-dark .card,
+body.theme-dark .card-body,
+body.theme-dark .card-header {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .hint,
+body.theme-dark p.hint {
+  color: #9aa0a6 !important;
+}
+
+/* テーブル要素のカラム・行を全て対応 */
+body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #303134 !important;
+}
+
+body.theme-dark .table-striped > tbody > tr:nth-of-type(even) {
+  background-color: #252628 !important;
+}
+
+body.theme-dark .table-bordered {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .table-bordered > tbody > tr > td,
+body.theme-dark .table-bordered > tbody > tr > th,
+body.theme-dark .table-bordered > tfoot > tr > td,
+body.theme-dark .table-bordered > tfoot > tr > th,
+body.theme-dark .table-bordered > thead > tr > td,
+body.theme-dark .table-bordered > thead > tr > th {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .bg-primary,
+body.theme-dark tr.bg-primary th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+/* ユーティリティクラス対応 */
+body.theme-dark .uppernavi {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark [bgcolor="#FFFFFF"],
+body.theme-dark [bgcolor="#ffffff"] {
+  background-color: #303134 !important;
+}
+
+/* コースページの詳細レイアウト改善 */
+body.theme-dark .cm-contentsList_content {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .cm-contentsList_content .cm-contentsList_contentDetailList {
+  background-color: #252628 !important;
+}
+
+body.theme-dark .cm-contentsList_contentDetailList li {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .cm-contentsList_contentName {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .cl-contentsList_label {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark .cl-contentsList_value {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .cl-contentsList_value a {
+  color: #8ab4f8 !important;
+}
+
+/* コースページの背景色 */
+body.theme-dark .cl-container,
+body.theme-dark .cl-wrapper {
+  background-color: #202124 !important;
+}
+
+/* コースページのテーブル要素 */
+body.theme-dark .cl-contentsList table,
+body.theme-dark .cl-contentsList th,
+body.theme-dark .cl-contentsList td {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .cl-contentsList th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .cl-contentsList td {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+/* モーダルウィンドウのスタイル改善 */
+body.theme-dark .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+body.theme-dark .modal-header .close,
+body.theme-dark .modal-header .btn-close {
+  color: #e8eaed !important;
+  opacity: 0.8;
+}
+
+body.theme-dark .modal-header .close:hover,
+body.theme-dark .modal-header .btn-close:hover {
+  opacity: 1;
+  color: #ffffff !important;
+}
+
+body.theme-dark .modal-footer {
+  background-color: #303134 !important;
+}
+
+/* フレームセットのスタイル対応（結果表示用） */
+frameset.theme-dark,
+frameset.theme-dark frame,
+body.theme-dark frameset,
+body.theme-dark frame {
+  border-color: #5f6368 !important;
+  background-color: #202124 !important;
+}
+
+/* テスト結果画面のための追加スタイル */
+body.theme-dark #MsgListTable td,
+body.theme-dark #resultmenu td {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .divTitle,
+body.theme-dark .title {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .divContent,
+body.theme-dark .content,
+body.theme-dark .divMainContent {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+/* ボタン、リンク、入力フィールドなどの追加対応 */
+body.theme-dark .btn,
+body.theme-dark .btn-primary,
+body.theme-dark .btn-info,
+body.theme-dark .btn-success,
+body.theme-dark .btn-warning {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .btn:hover,
+body.theme-dark .btn-primary:hover,
+body.theme-dark .btn-info:hover,
+body.theme-dark .btn-success:hover,
+body.theme-dark .btn-warning:hover {
+  background-color: #4b5053 !important;
+  border-color: #8ab4f8 !important;
+}
+
+/* パンくずリスト(breadcrumb)のダークモード対応 */
+body.theme-dark .breadcrumb {
+  background-color: #303134 !important;
+  border-radius: 4px !important;
+  border: 1px solid #5f6368 !important;
+}
+
+body.theme-dark .breadcrumb > li {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .breadcrumb > li + li:before {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark .breadcrumb > li > a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .breadcrumb > .active {
+  color: #9aa0a6 !important;
+}
+
+/* Dashboard/課題実施状況一覧ページのダークモード対応 */
+body.theme-dark [data-v-app] {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+/* ヘッダーとコンテンツ部分 */
+body.theme-dark main[role="main"] {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark h1.text-2xl,
+body.theme-dark h2.text-lg,
+body.theme-dark h3 {
+  color: #e8eaed !important;
+}
+
+/* 青いヘッダーバー */
+body.theme-dark h3.bg-blue-700 {
+  background-color: #3c4043 !important;
+}
+
+/* コースセクションのカード */
+body.theme-dark [data-v-0e556e9d].relative.bg-blue-100 {
+  background-color: #303134 !important;
+  border: 1px solid #5f6368 !important;
+}
+
+/* リンク色 */
+body.theme-dark .text-link,
+body.theme-dark a.text-link {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .text-link:hover,
+body.theme-dark a.text-link:hover {
+  color: #aecbfa !important;
+}
+
+/* テーブルヘッダー */
+body.theme-dark [data-v-8c172e70] thead.bg-gray-200 {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark [data-v-8c172e70] thead th {
+  color: #e8eaed !important;
+}
+
+/* テーブル行 */
+body.theme-dark [data-v-8c172e70] tr.border-b {
+  border-color: #5f6368 !important;
+}
+
+/* テーブルセル */
+body.theme-dark [data-v-8c172e70] td,
+body.theme-dark [data-v-8c172e70] th {
+  color: #e8eaed !important;
+}
+
+/* 表示なしメッセージ */
+body.theme-dark .text-base {
+  color: #e8eaed !important;
+}
+
+/* ボタンスタイル */
+body.theme-dark button.border {
+  background-color: #3c4043 !important;
+  border-color: #5f6368 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark button.border:hover {
+  background-color: #4b5053 !important;
+}
+
+/* セレクトボックス */
+body.theme-dark select {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* フォーム要素 */
+body.theme-dark form {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark form label {
+  color: #e8eaed !important;
+}
+
+/* 成績ステータスの色 */
+body.theme-dark .text-green-700 {
+  color: #81c995 !important;
+}
+
+body.theme-dark .text-red-700 {
+  color: #f28b82 !important;
+}
+
+body.theme-dark .text-gray-700 {
+  color: #9aa0a6 !important;
+}
+
+/* 矢印アイコン */
+body.theme-dark .material-design-icon {
+  color: #9aa0a6;
+}
+
+/* ソートアイコン */
+body.theme-dark .material-design-icon-icon svg {
+  fill: #9aa0a6;
+}
+
+/* すべてのページでリンク色をテーマカラーに統一 */
+a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+}
+
+a:not(.logo):not(.header-icon):not(.main-menu a):hover:not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+  text-decoration: underline;
+}
+
+/* ダークモードのリンク色 */
+body.theme-dark a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+  color: var(--primary-color) !important;
+}
+
+/* eポートフォリオページのレイアウト調整 - より強力に */
+body[class] #content_body {
+  margin: 0 !important;
+  float: none !important;
+  width: auto !important;
+  padding: 20px !important;
+}
+
+body[class] .mainContent {
+  margin-top: 0 !important;
+}
+
+/* iframeを強制非表示（CSS対策） */
+body[class] iframe#iframe_top_bar,
+iframe#iframe_top_bar {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
+
+/* contents_menuの強制非表示 */
+body[class] #contents_menu,
+#contents_menu {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+}
+
+/* ショーケースポートフォリオページの調整 */
+.showcasePortfolioDocument {
+  border: solid 1px var(--border-color) !important;
+  border-radius: 3px;
+  background-color: var(--background-color) !important;
+  padding: 0.5em;
+}
+
+.showcaseportfolios {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border-color) !important;
+  border-width: 1px 1px 0 1px;
+}
+
+.mainContentTitle {
+  margin-top: 0 !important;
+  margin-bottom: 0.5em;
+  border-radius: 10px;
+  padding: 0.2em 1em;
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* ポートフォリオとダッシュボードページの背景色 */
+body[class] main,
+body[class] .mainContent,
+body[class] .content,
+body[class] .container,
+body[class] .container-fluid {
+  background-color: var(--background-color) !important;
+}
+
+/* ダークモード時のeポートフォリオページ */
+body.theme-dark[class] #content_body,
+body.theme-dark[class] .mainContent,
+body.theme-dark[class] .mainContent * {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+body.theme-dark[class] .bgc_main {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+body.theme-dark[class] input[type="button"],
+body.theme-dark[class] button {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
 }

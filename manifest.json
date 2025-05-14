@@ -2,14 +2,27 @@
   "manifest_version": 3,
   "name": "StyleUp for WebClass",
   "version": "1.0",
-  "description": "WebClassのインターフェースを改善し、より使いやすくする拡張機能",
+  "description": "WebClassのインターフェースを改善し、より使いやすくするための拡張機能",
   "icons": {
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["*://ed24lb.osaka-sandai.ac.jp/webclass/*"],
+      "matches": [
+        "*://ed24lb.osaka-sandai.ac.jp/*",
+        "*://ed24lb.osaka-sandai.ac.jp/webclass/*"
+      ],
       "js": ["content.js"],
       "css": ["styles.css"],
       "run_at": "document_start"
@@ -21,5 +34,6 @@
       "matches": ["*://ed24lb.osaka-sandai.ac.jp/*"]
     }
   ],
-  "permissions": ["storage"]
+  "permissions": ["storage", "activeTab", "tabs", "contextMenus"],
+  "host_permissions": ["*://ed24lb.osaka-sandai.ac.jp/*"]
 }
