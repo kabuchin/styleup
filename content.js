@@ -77,25 +77,51 @@ function redirectToWebClass() {
   }
 }
 
+// CSS selectors cannot use :contains(), so we add data attributes to match elements
+function addDataContentAttributes() {
+  // サイドブロックのタイトル要素を取得
+  const sideBlockTitles = document.querySelectorAll('.side-block-title, h4.side-block-title, .side-block-outer h4');
+  
+  sideBlockTitles.forEach(titleElement => {
+    if (!titleElement.textContent) return;
+    
+    // data-content属性を追加してテキスト内容に基づいた選択を可能にする
+    titleElement.setAttribute('data-content', titleElement.textContent.trim());
+    
+    // 「リンク」または「課題実施状況一覧」ブロックを非表示化
+    if (titleElement.textContent.includes('リンク') || 
+        titleElement.textContent.includes('課題実施状況一覧')) {
+      titleElement.classList.add('side-block-title-hidden');
+      
+      // 対応するコンテンツも非表示
+      let contentElement = titleElement.nextElementSibling;
+      while(contentElement && 
+            (contentElement.classList.contains('side-block-content') || 
+            contentElement.classList.contains('side-block-outer'))) {
+        contentElement.classList.add('side-block-content-hidden');
+        contentElement = contentElement.nextElementSibling;
+      }
+    }
+  });
+}
+
 // マテリアルアイコンとGoogle Fontsを読み込む関数
 function loadFonts() {
   const head = document.head;
   
-  // マテリアルアイコンのフォントを読み込む
-  if (!document.querySelector('link[href*="fonts.googleapis.com/icon"]')) {
-    const iconFont = document.createElement('link');
-    iconFont.rel = 'stylesheet';
-    iconFont.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
-    head.appendChild(iconFont);
+  // 既に読み込まれている場合はスキップ（パフォーマンス向上）
+  if (document.querySelector('link[href*="fonts.googleapis.com/icon"]') || 
+      document.querySelector('link[href*="fonts.googleapis.com/css2"]')) {
+    return;
   }
   
-  // Google FontsのRobotoを読み込む
-  if (!document.querySelector('link[href*="fonts.googleapis.com/css2"]')) {
-    const googleFont = document.createElement('link');
-    googleFont.rel = 'stylesheet';
-    googleFont.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap';
-    head.appendChild(googleFont);
-  }
+  // マテリアルアイコンとRobotoフォントを一度に読み込み（HTTP接続を節約）
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Material+Icons&family=Roboto:wght@300;400;500;700&display=swap';
+  fontLink.setAttribute('media', 'print');
+  fontLink.setAttribute('onload', "this.media='all'");  // 非ブロッキングロード
+  head.appendChild(fontLink);
 }
 
 /**
@@ -186,6 +212,38 @@ function loadSavedTheme() {
     // iframe内のコンテンツにもテーマを適用
     setTimeout(applyThemeToFrames, 500);
   });
+}
+
+// 保存された設定を読み込む関数
+function loadSettings() {
+  chrome.storage.sync.get({
+    'selectedTheme': 'default',
+    'autoScroll': true,
+    'courseFontSize': 14  // 科目名フォントサイズのデフォルト値
+  }, function(data) {
+    // テーマを適用
+    if (data.selectedTheme) {
+      setTheme(data.selectedTheme);
+    }
+    
+    // 自動スクロール設定を保存
+    window.styleupSettings = {
+      autoScroll: data.autoScroll,
+      courseFontSize: data.courseFontSize
+    };
+    
+    console.log('設定を読み込みました:', window.styleupSettings);
+    
+    // フォントサイズを適用
+    applyCourseFontSize(data.courseFontSize);
+  });
+}
+
+// 科目名のフォントサイズを適用する関数
+function applyCourseFontSize(fontSize) {
+  // CSSカスタムプロパティを設定
+  document.documentElement.style.setProperty('--course-title-font-size', fontSize + 'px');
+  console.log('科目名フォントサイズを変更しました:', fontSize + 'px');
 }
 
 /**
@@ -838,6 +896,7 @@ function modifyMainPageLayout() {
     reorderCourseList();
     reorderLeftColumn(leftColumn);
     highlightTodayClasses();
+    enhanceCoursesList(); // 科目リスト表示の改善を追加
     customizeFooter();
   }, 500);
 }
@@ -1056,6 +1115,10 @@ function highlightTodayClasses() {
     }
   }
   
+  // 現在の授業へスクロールするかどうかのフラグ
+  let shouldScrollToCurrentClass = window.styleupSettings && window.styleupSettings.autoScroll;
+  let currentClassElement = null;
+  
   // 科目リンクを処理
   const courseLinks = document.querySelectorAll('.courseList li a');
   courseLinks.forEach(link => {
@@ -1072,29 +1135,49 @@ function highlightTodayClasses() {
         // 時間情報を追加
         const timeInfo = PERIOD_TIME_MAPPING[period];
         if (timeInfo) {
-          const timeSpan = document.createElement('span');
-          timeSpan.className = 'course-time-info';
-          timeSpan.textContent = ` (${timeInfo.start}～${timeInfo.end})`;
-          link.appendChild(timeSpan);
+          // リンクURL取得
+          const courseUrl = link.href;
+          
+          // 時間情報をクリック可能なリンクに変更
+          const timeLink = document.createElement('a');
+          timeLink.className = 'course-time-info course-time-link';
+          timeLink.textContent = ` (${timeInfo.start}～${timeInfo.end})`;
+          timeLink.href = courseUrl;
+          timeLink.title = `${courseName} - ${timeInfo.start}～${timeInfo.end}`;
+          
+          // リンククリックイベントを親リンクと共有
+          timeLink.addEventListener('click', function(e) {
+            e.stopPropagation(); // 親リンクのクリックイベントを停止
+          });
+          
+          link.appendChild(timeLink);
         }
         
         // 現在時限ならさらにハイライト
         if (period === currentPeriod) {
           link.parentElement.classList.add('current-period');
-          setTimeout(() => {
-            link.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 1000);
+          currentClassElement = link;
         }
       }
     }
   });
   
+  // 自動スクロールが有効で、現在の授業がある場合
+  if (shouldScrollToCurrentClass && currentClassElement) {
+    setTimeout(() => {
+      currentClassElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 1000);
+  }
+  
   // 時間帯の凡例を追加
-  addTimeLegend();
+  addTimeLegend(currentPeriod);
 }
 
 // 授業時間帯の凡例を追加
-function addTimeLegend() {
+function addTimeLegend(currentPeriod = null) {
   if (document.querySelector('.class-time-legend')) return;
   
   // 凡例コンテナ
@@ -1122,6 +1205,24 @@ function addTimeLegend() {
   
   // データ行
   const fragment = new DocumentFragment();
+  
+  // 対応する曜日の授業リンクを検索するヘルパー関数
+  function findCourseLinks(period) {
+    const now = new Date();
+    const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
+    const currentDayJp = jpDays[now.getDay()];
+    
+    // 現在の曜日の授業を検索
+    const todaysCourses = Array.from(document.querySelectorAll('.courseList li a'))
+      .filter(link => {
+        const text = link.textContent;
+        const match = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
+        return match && match[3] === currentDayJp && match[4] === period;
+      });
+    
+    return todaysCourses;
+  }
+  
   for (const [period, timeRange] of Object.entries(PERIOD_TIME_MAPPING)) {
     const row = document.createElement('tr');
     
@@ -1129,7 +1230,30 @@ function addTimeLegend() {
     periodCell.textContent = period;
     
     const timeCell = document.createElement('td');
-    timeCell.textContent = `${timeRange.start}～${timeRange.end}`;
+    
+    // 対応する曜日の授業リンクを検索
+    const courseLinks = findCourseLinks(period);
+    
+    if (courseLinks.length > 0) {
+      // この時限に授業がある場合、リンクを作成
+      const timeLink = document.createElement('a');
+      timeLink.textContent = `${timeRange.start}～${timeRange.end}`;
+      timeLink.href = courseLinks[0].href;
+      timeLink.className = 'time-legend-link';
+      
+      // 現在の時限なら特別なクラスを追加
+      if (period === currentPeriod) {
+        timeLink.classList.add('current-time');
+      }
+      
+      timeLink.title = `${courseLinks[0].textContent.split(',')[0]} に移動`;
+      
+      // コース名をツールチップとして表示
+      timeCell.appendChild(timeLink);
+    } else {
+      // この時限に授業がない場合は通常テキスト
+      timeCell.textContent = `${timeRange.start}～${timeRange.end}`;
+    }
     
     row.appendChild(periodCell);
     row.appendChild(timeCell);
@@ -1208,6 +1332,116 @@ function setupOutsideClickHandler() {
   });
 }
 
+// ログインページでの自動入力とログイン処理
+function handleLoginPage() {
+  const url = window.location.href;
+  
+  // ログインページかどうか確認
+  if (url.includes('/webclass/login.php')) {
+    console.log('WebClassログインページを検出しました');
+    
+    // DOMの読み込み完了を待つ (重要)
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', () => handleLoginForm());
+    } else {
+      handleLoginForm();
+    }
+    
+    // ログインページ用のスタイルを適用
+    document.body.classList.add('login-page');
+  }
+}
+
+// ログインフォームの処理（分離して再利用性を高める）
+function handleLoginForm() {
+  // ログインフォームを確実に取得
+  const loginForm = document.querySelector('form[name="loginform"], form[action*="login.php"]');
+  
+  if (!loginForm) {
+    console.warn('ログインフォームが見つかりません');
+    return;
+  }
+  
+  console.log('ログインフォームを検出しました', loginForm);
+  
+  // ユーザーIDとパスワードのフィールドを取得
+  const userIdField = loginForm.querySelector('input[name="username"], #userid');
+  const passwordField = loginForm.querySelector('input[name="val"], #passwd');
+  
+  if (!userIdField || !passwordField) {
+    console.warn('ログインフィールドが見つかりません:', {
+      userIdField: !!userIdField,
+      passwordField: !!passwordField
+    });
+    return;
+  }
+  
+  // ログインボタンの取得
+  const loginButton = loginForm.querySelector('input[type="submit"], button[type="submit"]');
+  
+  // フォーム内のすべての入力フィールドをログ出力（デバッグ用）
+  const allFormInputs = {};
+  loginForm.querySelectorAll('input').forEach(input => {
+    if (input.name) {
+      allFormInputs[input.name] = input.value;
+    }
+  });
+  console.log('フォーム内の全フィールド:', allFormInputs);
+  
+  // 保存されたログイン情報を取得
+  chrome.storage.sync.get(['wcUsername', 'wcPassword', 'autoLogin'], function(data) {
+    if (data.wcUsername && data.wcPassword) {
+      console.log('保存されたログイン情報を使用します');
+      
+      // ユーザーID入力
+      userIdField.value = data.wcUsername;
+      
+      // パスワード入力
+      passwordField.value = data.wcPassword;
+      
+      // 自動ログインが有効な場合は処理を実行
+      if (data.autoLogin) {
+        console.log('自動ログイン実行を準備しています');
+        
+        // フォームの送信前に少し待機
+        setTimeout(() => {
+          try {
+            console.log('ログインフォームを送信します');
+            
+            // いくつかの方法を試行
+            if (loginButton) {
+              // 1. ログインボタンのクリックイベントをトリガー
+              console.log('ログインボタンをクリックします');
+              loginButton.click();
+            } else {
+              // 2. フォームの送信メソッドを使用
+              console.log('フォーム送信メソッドを使用します');
+              loginForm.submit();
+            }
+          } catch (error) {
+            console.error('ログイン処理中にエラーが発生しました:', error);
+            
+            // 3. バックアップ方法: カスタムイベントを作成
+            try {
+              console.log('カスタム送信イベントを試行します');
+              const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+              loginForm.dispatchEvent(submitEvent);
+            } catch (e) {
+              console.error('すべてのログイン試行が失敗しました');
+            }
+          }
+        }, 800); // 入力完了を待つために遅延を少し長めに設定
+      }
+    }
+  });
+  
+  // フォーム送信イベントの監視（デバッグ用）
+  loginForm.addEventListener('submit', function(e) {
+    console.log('フォーム送信イベントが検出されました');
+    // ここではイベントを停止せず、通常の送信を許可
+  });
+}
+
 /**
  * 拡張機能の初期化
  */
@@ -1215,13 +1449,22 @@ function setupOutsideClickHandler() {
 function initializeCustomHeader() {
   console.log('WebClass カスタマイズ拡張機能を初期化中...');
   
+  // クリティカルCSSを設定
+  setupCriticalCSS();
+  
+  // リンクブロック非表示のためにデータ属性を追加
+  addDataContentAttributes();
+  
+  // ログインページの処理を最優先で実行
+  handleLoginPage();
+  
   // リダイレクト処理を実行
   redirectToWebClass();
   
   // フォントの読み込み
   loadFonts();
 
-  // eポートフォリオページのiframeを削除（優先順位を上げて早期に実行）
+  // eポートフォリオページのiframeを削除
   removeEportfolioIframe();
   
   // ヘッダー置き換えを試みる
@@ -1230,14 +1473,14 @@ function initializeCustomHeader() {
     setTimeout(replaceHeader, 500);
   }
   
+  // 設定を読み込む
+  loadSettings();
+  
   // メインページの場合はレイアウトも変更
   setTimeout(modifyMainPageLayout, 1000);
   
   // 「このウィンドウを閉じる」ボタンを「ホームへ戻る」に変更
   setTimeout(replaceCloseButtons, 1000);
-  
-  // 保存されたテーマを読み込む
-  loadSavedTheme();
   
   // クリック外でドロップダウンメニューを閉じる
   setupOutsideClickHandler();
@@ -1301,6 +1544,49 @@ function replaceCloseButtons() {
   });
 }
 
+// クリティカルCSSの優先読み込みを設定
+function setupCriticalCSS() {
+  // 最も重要なスタイルを抽出したインラインCSS
+  const criticalStyles = `
+    :root {
+      --primary-color: #1a73e8;
+      --background-color: #ffffff;
+      --text-color: #202124;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      background-color: var(--background-color);
+    }
+    body.theme-dark {
+      --primary-color: #8ab4f8;
+      --background-color: #202124;
+      --text-color: #e8eaed;
+    }
+    .custom-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      background-color: var(--background-color);
+    }
+    header .navbar.navbar-default {
+      display: none !important;
+    }
+    .side-block-title-hidden, .side-block-content-hidden {
+      display: none !important;
+    }
+  `;
+  
+  // クリティカルCSSをドキュメントヘッドに追加
+  const styleElement = document.createElement('style');
+  styleElement.id = 'styleup-critical-css';
+  styleElement.textContent = criticalStyles;
+  document.head.appendChild(styleElement);
+}
+
 // DOMが読み込まれた直後に実行
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeCustomHeader);
@@ -1351,11 +1637,231 @@ observer.observe(document.documentElement, {
   subtree: true
 });
 
-// メッセージリスナーを追加（ポップアップからのテーマ変更に対応）
+// メッセージリスナーを追加（ポップアップからの設定変更に対応）
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message.action === 'setTheme') {
     setTheme(message.theme);
     sendResponse({ success: true });
     return true;
   }
+  
+  // 設定更新メッセージを処理
+  if (message.action === 'updateSettings') {
+    // グローバル設定を更新
+    window.styleupSettings = {
+      ...(window.styleupSettings || {}),
+      ...message.settings
+    };
+    
+    // フォントサイズの更新
+    if (message.settings.courseFontSize) {
+      applyCourseFontSize(message.settings.courseFontSize);
+    }
+    
+    console.log('設定を更新しました:', window.styleupSettings);
+    sendResponse({ success: true });
+    return true;
+  }
 });
+
+// 科目アイテムの表示を強化する関数
+function enhanceCourseItems(courseList) {
+  // 親カテゴリーが登録科目一覧かどうかをチェック
+  const isRegisteredCourseList = courseList.closest('li.registered-courses') !== null;
+  
+  const courses = courseList.querySelectorAll(':scope > li');
+  
+  courses.forEach(course => {
+    // 登録科目リストの場合は特別なクラスを追加
+    if (isRegisteredCourseList) {
+      course.classList.add('registered-course');
+    }
+    
+    const linkElement = course.querySelector('a');
+    if (!linkElement) return;
+    
+    // 現在のHTML構造を保持
+    const originalHTML = course.innerHTML;
+    const linkURL = linkElement.getAttribute('href');
+    const fullText = linkElement.textContent.trim();
+    
+    // 科目名とその他情報を分離
+    let courseTitle = fullText;
+    let teacherName = '';
+    let semester = '';
+    let day = '';
+    let period = '';
+    let year = '';
+    
+    // 科目情報をパース
+    const courseInfoMatch = fullText.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d) (\d{4})/);
+    if (courseInfoMatch) {
+      [, courseTitle, teacherName, semester, day, period, year] = courseInfoMatch;
+    }
+    
+    // 新しいHTML構造を構築
+    const newContent = document.createElement('div');
+    newContent.className = 'course-content';
+    
+    // 科目名
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'course-main-info';
+    
+    const titleLink = document.createElement('a');
+    titleLink.href = linkURL;
+    titleLink.textContent = courseTitle;
+    titleDiv.appendChild(titleLink);
+    
+    // 追加情報（教員名、曜日時限）
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'course-details';
+    
+    if (day && period && isRegisteredCourseList) {
+      // 曜日タグ（曜日ごとに異なるクラスを適用）
+      const timeBadge = document.createElement('span');
+      timeBadge.className = 'course-time-badge';
+      
+      // 曜日ごとにクラスを適用
+      const dayMap = {
+        '月': 'day-mon',
+        '火': 'day-tue',
+        '水': 'day-wed',
+        '木': 'day-thu',
+        '金': 'day-fri',
+        '土': 'day-sat',
+        '日': 'day-sun'
+      };
+      
+      if (dayMap[day]) {
+        timeBadge.classList.add(dayMap[day]);
+      }
+      
+      timeBadge.textContent = `${day}${period}限`;
+      detailsDiv.appendChild(timeBadge);
+      
+      // 登録科目では時間情報を表示しない（登録科目一覧のみ）
+      if (!isRegisteredCourseList) {
+        const timeInfo = PERIOD_TIME_MAPPING[period];
+        if (timeInfo) {
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'course-time-info';
+          timeSpan.textContent = `${timeInfo.start}～${timeInfo.end}`;
+          detailsDiv.appendChild(timeSpan);
+        }
+      }
+    } else if (day && period) {
+      // 登録科目一覧以外の場合は従来通りの表示
+      // 曜日タグ
+      const timeBadge = document.createElement('span');
+      timeBadge.className = 'course-time-badge';
+      timeBadge.textContent = `${day}${period}`;
+      detailsDiv.appendChild(timeBadge);
+      
+      // 時間情報
+      const timeInfo = PERIOD_TIME_MAPPING[period];
+      if (timeInfo) {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'course-time-info';
+        timeSpan.textContent = `${timeInfo.start}～${timeInfo.end}`;
+        detailsDiv.appendChild(timeSpan);
+      }
+    }
+    
+    if (teacherName) {
+      const teacherSpan = document.createElement('span');
+      teacherSpan.className = 'course-teacher';
+      teacherSpan.textContent = teacherName;
+      detailsDiv.appendChild(teacherSpan);
+    }
+    
+    // 新しい構造に組み立て
+    newContent.appendChild(titleDiv);
+    newContent.appendChild(detailsDiv);
+    
+    // 元の内容を置き換え
+    course.innerHTML = '';
+    const newWrapper = document.createElement('div');
+    newWrapper.className = 'course-title';
+    newWrapper.appendChild(newContent);
+    course.appendChild(newWrapper);
+    
+    // 締切が近い課題の表示を保持
+    if (originalHTML.includes('締切が近い課題があります')) {
+      const deadlineInfo = document.createElement('div');
+      deadlineInfo.innerHTML = '<span class="course-contents-info">締切が近い課題があります</span>';
+      course.appendChild(deadlineInfo);
+    }
+    
+    // クリックハンドラを追加（リンクではない部分をクリックしても移動できるように）
+    course.style.cursor = 'pointer';
+    course.addEventListener('click', function(e) {
+      // リンク自体がクリックされた場合は通常の動作を許可
+      if (e.target.tagName === 'A') return;
+      
+      // それ以外の場合はコースページに移動
+      window.location.href = linkURL;
+    });
+  });
+}
+
+// 科目リストの表示を改善する関数
+function enhanceCoursesList() {
+  const pageType = getPageType();
+  
+  // トップページ以外では実行しない
+  if (pageType !== 'home') return;
+  
+  // 科目一覧のコンテナを取得
+  const courseLevelOneList = document.querySelector('.courseTree.courseLevelOne');
+  if (!courseLevelOneList) return;
+  
+  console.log('科目リスト表示を強化します');
+  
+  // 強化クラスを追加
+  courseLevelOneList.classList.add('enhanced-course-tree');
+  
+  // 各カテゴリを処理
+  const categoryItems = courseLevelOneList.querySelectorAll(':scope > li');
+  categoryItems.forEach((categoryItem, index) => {
+    // カテゴリータイトルと科目リストを取得
+    const titleElement = categoryItem.querySelector('.courseTree-levelTitle');
+    const courseList = categoryItem.querySelector('.courseList');
+    
+    if (!titleElement || !courseList) return;
+    
+    // 登録科目一覧のカテゴリを特定してクラスを追加
+    if (titleElement.textContent.includes('[登録科目一覧]')) {
+      categoryItem.classList.add('registered-courses');
+    }
+    
+    // 科目数をカウントして表示
+    const courseCount = courseList.querySelectorAll(':scope > li').length;
+    if (courseCount > 0) {
+      const countBadge = document.createElement('span');
+      countBadge.className = 'course-count';
+      countBadge.textContent = courseCount;
+      if (!titleElement.querySelector('.course-count')) {
+        titleElement.appendChild(countBadge);
+      }
+    }
+    
+    // 折りたたみ機能を追加
+    titleElement.style.cursor = 'pointer';
+    if (!titleElement.hasAttribute('data-click-handler-added')) {
+      titleElement.setAttribute('data-click-handler-added', 'true');
+      titleElement.addEventListener('click', function() {
+        categoryItem.classList.toggle('collapsed');
+        courseList.style.display = categoryItem.classList.contains('collapsed') ? 'none' : 'block';
+      });
+    }
+    
+    // 科目リストにクラスを追加
+    courseList.classList.add('enhanced-course-list');
+    
+    // 各科目アイテムを強化
+    enhanceCourseItems(courseList);
+  });
+  
+  // 登録科目カテゴリが最初に表示されるよう並べ替え
+  reorderCourseList();
+}

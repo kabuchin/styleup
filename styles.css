@@ -1,7 +1,8 @@
 /* 全体のリセットとフォント設定 */
 :root {
-  /* デフォルトテーマ（ブルー） */
+  /* デフォルトテーマ（ブルー） - RGBも同時に定義して参照回数を減らす */
   --primary-color: #1a73e8;
+  --primary-color-rgb: 26, 115, 232;  /* #1a73e8 のRGB値 */
   --secondary-color: #5f6368;
   --background-color: #ffffff;
   --text-color: #202124;
@@ -15,7 +16,12 @@
   --current-highlight: #e8f5e9;
   --current-border: #2e7d32;
   --footer-background: #f8f9fa;  /* フッターの背景色を追加 */
-  --primary-color-rgb: 26, 115, 232;  /* #1a73e8 のRGB値 */
+  
+  /* レスポンシブ設計のための変数 */
+  --content-max-width: 1200px;
+  --header-height: 64px;
+  --mobile-header-height: 56px;
+  --course-title-font-size: 14px;
 }
 
 /* グリーンテーマ */
@@ -376,22 +382,24 @@ header .navbar.navbar-default {
   display: none !important;
 }
 
-/* サイドの「リンク」ブロックを強制的に非表示 */
-.side-block-title:contains('リンク'),
-h4.side-block-title:contains('リンク'),
-.side-block-title:contains('課題実施状況一覧'),
-h4.side-block-title:contains('課題実施状況一覧'),
-.side-block-outer h4:contains('リンク'),
-.side-block-outer h4:contains('課題実施状況一覧') {
+/* サイドの「リンク」ブロックを強制的に非表示 - CSS contains()を使わない代替実装 */
+.side-block-title[class*="link"],
+h4.side-block-title[class*="link"],
+.side-block-title[class*="課題実施状況一覧"],
+h4.side-block-title[class*="課題実施状況一覧"],
+.side-block-outer h4[class*="link"],
+.side-block-outer h4[class*="課題実施状況一覧"],
+/* コンテンツの text 属性でのマッチング */
+[data-content*="リンク"].side-block-title,
+[data-content*="リンク"].side-block-title,
+[data-content*="課題実施状況一覧"].side-block-title,
+[data-content*="課題実施状況一覧"].side-block-title {
   display: none !important;
 }
 
-.side-block-title:contains('リンク') ~ .side-block-content,
-h4.side-block-title:contains('リンク') ~ .side-block-content,
-.side-block-outer h4:contains('リンク') ~ .side-block-content,
-.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
-h4.side-block-title:contains('課題実施状況一覧') ~ .side-block-content,
-.side-block-outer h4:contains('課題実施状況一覧') ~ .side-block-content {
+/* JavaScriptで動的にdata-content属性を設定するための隠しスタイル */
+.side-block-title-hidden,
+.side-block-content-hidden {
   display: none !important;
 }
 
@@ -1072,6 +1080,19 @@ body.theme-dark .ft-footer_custom a {
 .current-period {
   background-color: var(--current-highlight) !important;
   border-left: 4px solid var(--current-border) !important;
+  /* 現在の授業時間をより明確にするためのスタイル強化 */
+  position: relative;
+  animation: pulse-highlight 2s infinite alternate;
+}
+
+/* 現在の授業時間を示すパルスアニメーション */
+@keyframes pulse-highlight {
+  0% { 
+    background-color: var(--current-highlight);
+  }
+  100% { 
+    background-color: color-mix(in srgb, var(--current-highlight) 80%, var(--current-border) 20%);
+  }
 }
 
 .current-period .course-title a {
@@ -1079,11 +1100,55 @@ body.theme-dark .ft-footer_custom a {
   font-weight: bold !important;
 }
 
+/* 凡例での現在時間の表示強化 */
+tr:has(.time-legend-link.current-time) {
+  background-color: var(--current-highlight);
+  border-left: 4px solid var(--current-border);
+  font-weight: bold;
+}
+
+.time-legend-link.current-time {
+  font-weight: bold;
+}
+
 /* 時間情報のスタイル */
 .course-time-info {
-  font-size: 0.85em;
+  font-size: calc(var(--course-title-font-size, 14px) * 0.85);
   color: #666;
   margin-left: 5px;
+}
+
+/* 時間リンクのスタイル追加 */
+.course-time-link {
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--primary-color) !important;
+  font-weight: 500;
+}
+
+.course-time-link:hover {
+  text-decoration: underline;
+}
+
+.time-legend-link {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.time-legend-link:hover {
+  text-decoration: underline;
+}
+
+/* 凡例で今日の授業がある時間帯を強調表示 */
+tr:has(.time-legend-link) {
+  background-color: var(--highlight-color);
+}
+
+/* ダークモード対応 */
+body.theme-dark .course-time-link,
+body.theme-dark .time-legend-link {
+  color: var(--primary-color) !important;
 }
 
 /* 授業時間帯の凡例 */
@@ -1760,4 +1825,248 @@ body.theme-dark[class] button {
   background-color: #3c4043 !important;
   color: #e8eaed !important;
   border-color: #5f6368 !important;
+}
+
+/* 科目名のフォントサイズ調整 - 複数のサイズクラス */
+.course-title a {
+  font-size: var(--course-title-font-size, 14px); /* デフォルトサイズを14pxとし、カスタム変数で上書き可能に */
+  transition: font-size 0.2s ease;
+}
+
+/* 科目名のフォントサイズを拡大 */
+.enhanced-course-list .registered-course .course-main-info a {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* 登録科目の時間表示を非表示 */
+.enhanced-course-list .registered-course .course-time-info {
+  display: none;
+}
+
+/* 曜日バッジの曜日別カラー */
+.enhanced-course-list .day-mon {
+  background-color: #1a73e8; /* 月曜 - 青 */
+  color: white;
+}
+
+.enhanced-course-list .day-tue {
+  background-color: #ea4335; /* 火曜 - 赤 */
+  color: white;
+}
+
+.enhanced-course-list .day-wed {
+  background-color: #0f9d58; /* 水曜 - 緑 */
+  color: white;
+}
+
+.enhanced-course-list .day-thu {
+  background-color: #f9ab00; /* 木曜 - オレンジ */
+  color: white;
+}
+
+.enhanced-course-list .day-fri {
+  background-color: #673ab7; /* 金曜 - 紫 */
+  color: white;
+}
+
+.enhanced-course-list .day-sat {
+  background-color: #00acc1; /* 土曜 - 水色 */
+  color: white;
+}
+
+.enhanced-course-list .day-sun {
+  background-color: #ff6d01; /* 日曜 - オレンジ */
+  color: white;
+}
+
+/* バッジの基本スタイルを大きく */
+.enhanced-course-list .registered-course .course-time-badge {
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-right: 10px;
+  letter-spacing: 1px;
+  border-radius: 16px;
+  display: inline-block;
+}
+
+/* 登録科目のカード全体のスタイル強化 */
+.enhanced-course-list .registered-course {
+  padding: 8px !important;
+  margin-bottom: 6px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border-left: none !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  background-color: white !important;
+}
+
+.enhanced-course-list .registered-course:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.enhanced-course-list .registered-course .course-content {
+  padding: 4px 0;
+}
+
+.enhanced-course-list .registered-course .course-teacher {
+  font-size: 13px;
+  color: #5f6368;
+}
+
+/* [登録科目一覧] ヘッダーをより目立たせる */
+.registered-courses .courseTree-levelTitle {
+  background: linear-gradient(45deg, var(--primary-color), #1E88E5) !important;
+  padding: 12px 16px !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* ダークモード対応 */
+body.theme-dark .enhanced-course-list .registered-course {
+  background-color: #303134 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.theme-dark .enhanced-course-list .registered-course:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.theme-dark .enhanced-course-list .registered-course .course-teacher {
+  color: #9aa0a6;
+}
+
+/* 科目別のステータスインジケーター */
+.enhanced-course-list .registered-course .course-status-indicator {
+  width: 4px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.enhanced-course-list .registered-course {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 今日の授業と現在の授業時間のハイライト改善 */
+.enhanced-course-list .registered-course.today-class {
+  background-color: #e3f2fd !important;
+}
+
+.enhanced-course-list .registered-course.current-period {
+  background-color: #e8f5e9 !important;
+  border-left: 4px solid #1b5e20 !important;
+}
+
+body.theme-dark .enhanced-course-list .registered-course.today-class {
+  background-color: #283142 !important;
+}
+
+body.theme-dark .enhanced-course-list .registered-course.current-period {
+  background-color: #1e3a29 !important;
+}
+
+/* 締切の近い課題アラートをより目立つように */
+.enhanced-course-list .registered-course .course-contents-info {
+  background-color: #fef9e7;
+  color: #ff6d01 !important;
+  border-left: 4px solid #ff6d01;
+  padding: 4px 8px !important;
+  margin-top: 5px;
+  display: block;
+  font-weight: 500;
+  font-size: 12px !important;
+  border-radius: 0 4px 4px 0;
+}
+
+body.theme-dark .enhanced-course-list .registered-course .course-contents-info {
+  background-color: #3e2723;
+  color: #ff9e80 !important;
+}
+
+/* ログインページのカスタムスタイル */
+body.login-page {
+  background-color: var(--background-color);
+}
+
+body.login-page form[name="loginform"],
+body.login-page form[action*="login.php"] {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 40px auto;
+  background-color: var(--background-color);
+}
+
+body.login-page input[type="text"],
+body.login-page input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+
+body.login-page input[type="text"]:focus,
+body.login-page input[type="password"]:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+body.login-page input[type="submit"],
+body.login-page button[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+body.login-page input[type="submit"]:hover,
+body.login-page button[type="submit"]:hover {
+  background-color: #1565c0;
+}
+
+/* ダークモードのログインページ対応 */
+body.theme-dark.login-page form[name="loginform"],
+body.theme-dark.login-page form[action*="login.php"] {
+  background-color: #303134;
+  border-color: #5f6368;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark.login-page input[type="text"],
+body.theme-dark.login-page input[type="password"] {
+  background-color: #202124;
+  color: #e8eaed;
+  border-color: #5f6368;
+}
+
+body.theme-dark.login-page input[type="submit"],
+body.theme-dark.login-page button[type="submit"] {
+  background-color: var(--primary-color);
+}
+
+body.theme-dark.login-page input[type="submit"]:hover,
+body.theme-dark.login-page button[type="submit"]:hover {
+  background-color: #5c9ef7;
 }

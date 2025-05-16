@@ -96,3 +96,54 @@ function toggleDarkMode(tab) {
     });
   });
 }
+
+// 拡張機能のアイコンを有効・無効にする機能
+function updateExtensionIcon(tabId, url) {
+  // WebClassのURLかどうかチェック
+  if (url && url.includes('ed24lb.osaka-sandai.ac.jp')) {
+    // WebClassページの場合はアイコンを有効化
+    chrome.action.enable(tabId);
+    
+    // バッジを表示して拡張機能が有効であることを示す
+    chrome.action.setBadgeText({
+      tabId: tabId,
+      text: "ON"
+    });
+    chrome.action.setBadgeBackgroundColor({
+      tabId: tabId,
+      color: "#1a73e8"
+    });
+  } else {
+    // WebClass以外のページではアイコンを無効化
+    chrome.action.disable(tabId);
+    chrome.action.setBadgeText({
+      tabId: tabId,
+      text: ""
+    });
+  }
+}
+
+// タブの更新を監視
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    updateExtensionIcon(tabId, tab.url);
+  }
+});
+
+// タブの切り替えを監視
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.tabs.get(activeInfo.tabId, (tab) => {
+    if (tab.url) {
+      updateExtensionIcon(activeInfo.tabId, tab.url);
+    }
+  });
+});
+
+// ブラウザの起動時にすべてのタブをチェック
+chrome.runtime.onStartup.addListener(() => {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      updateExtensionIcon(tab.id, tab.url);
+    });
+  });
+});

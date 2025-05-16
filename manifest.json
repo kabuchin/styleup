@@ -12,10 +12,12 @@
     "default_icon": {
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
-    }
+    },
+    "default_title": "StyleUp for WebClass"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
@@ -34,6 +36,6 @@
       "matches": ["*://ed24lb.osaka-sandai.ac.jp/*"]
     }
   ],
-  "permissions": ["storage", "activeTab", "tabs", "contextMenus"],
+  "permissions": ["storage", "contextMenus"],
   "host_permissions": ["*://ed24lb.osaka-sandai.ac.jp/*"]
 }
