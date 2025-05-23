@@ -1693,7 +1693,6 @@ body.theme-dark select {
 
 /* フォーム要素 */
 body.theme-dark form {
-  background-color: #303134 !important;
   border-color: #5f6368 !important;
 }
 
@@ -1943,130 +1942,263 @@ body.theme-dark .enhanced-course-list .registered-course .course-teacher {
   color: #9aa0a6;
 }
 
-/* 科目別のステータスインジケーター */
-.enhanced-course-list .registered-course .course-status-indicator {
-  width: 4px;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  border-radius: 3px 0 0 3px;
+/* 時間凡例内の科目名表示用スタイル */
+.time-legend-container {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
 }
 
-.enhanced-course-list .registered-course {
-  position: relative;
+.time-legend-course-name {
+  font-weight: normal;
+  color: var(--text-color);
+  margin-left: 5px;
+  font-size: 0.9em;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
-/* 今日の授業と現在の授業時間のハイライト改善 */
-.enhanced-course-list .registered-course.today-class {
-  background-color: #e3f2fd !important;
+body.theme-dark .time-legend-course-name {
+  color: #9aa0a6;
 }
 
-.enhanced-course-list .registered-course.current-period {
-  background-color: #e8f5e9 !important;
-  border-left: 4px solid #1b5e20 !important;
+/* 現在の時限の行をハイライト */
+.current-period-row {
+  background-color: var(--current-highlight) !important;
+  border-left: 3px solid var(--current-border);
 }
 
-body.theme-dark .enhanced-course-list .registered-course.today-class {
-  background-color: #283142 !important;
+/* 登録科目一覧以外のコースアイテムのスタイル改善 */
+.other-course-item {
+  border-left: 3px solid transparent;
+  transition: border-color 0.3s, background-color 0.3s;
+  padding-left: 0 !important;
 }
 
-body.theme-dark .enhanced-course-list .registered-course.current-period {
-  background-color: #1e3a29 !important;
+.other-course-item:hover {
+  border-left-color: var(--primary-color);
+  background-color: var(--hover-color) !important;
 }
 
-/* 締切の近い課題アラートをより目立つように */
-.enhanced-course-list .registered-course .course-contents-info {
-  background-color: #fef9e7;
-  color: #ff6d01 !important;
-  border-left: 4px solid #ff6d01;
-  padding: 4px 8px !important;
-  margin-top: 5px;
-  display: block;
+.other-course-item .course-title {
+  padding-left: 8px;
+}
+
+.other-course-link {
   font-weight: 500;
-  font-size: 12px !important;
-  border-radius: 0 4px 4px 0;
+  color: var(--text-color);
 }
 
-body.theme-dark .enhanced-course-list .registered-course .course-contents-info {
-  background-color: #3e2723;
-  color: #ff9e80 !important;
-}
-
-/* ログインページのカスタムスタイル */
-body.login-page {
-  background-color: var(--background-color);
-}
-
-body.login-page form[name="loginform"],
-body.login-page form[action*="login.php"] {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  margin: 40px auto;
-  background-color: var(--background-color);
-}
-
-body.login-page input[type="text"],
-body.login-page input[type="password"] {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 16px;
-  margin-bottom: 16px;
-  transition: border-color 0.2s;
-}
-
-body.login-page input[type="text"]:focus,
-body.login-page input[type="password"]:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
-}
-
-body.login-page input[type="submit"],
-body.login-page button[type="submit"] {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-body.login-page input[type="submit"]:hover,
-body.login-page button[type="submit"]:hover {
-  background-color: #1565c0;
-}
-
-/* ダークモードのログインページ対応 */
-body.theme-dark.login-page form[name="loginform"],
-body.theme-dark.login-page form[action*="login.php"] {
-  background-color: #303134;
-  border-color: #5f6368;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-body.theme-dark.login-page input[type="text"],
-body.theme-dark.login-page input[type="password"] {
-  background-color: #202124;
+body.theme-dark .other-course-link {
   color: #e8eaed;
-  border-color: #5f6368;
 }
 
-body.theme-dark.login-page input[type="submit"],
-body.theme-dark.login-page button[type="submit"] {
-  background-color: var(--primary-color);
+.other-course-item:hover .course-title a {
+  color: var(--primary-color) !important;
 }
 
-body.theme-dark.login-page input[type="submit"]:hover,
-body.theme-dark.login-page button[type="submit"]:hover {
-  background-color: #5c9ef7;
+/* 科目名の強調表示用スタイル */
+.course-name-highlight {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: var(--text-color);
+}
+
+.course-teacher-inline {
+  font-size: 0.9em;
+  color: var(--secondary-color);
+  font-weight: normal;
+}
+
+/* ダークモード対応 */
+body.theme-dark .course-name-highlight {
+  color: #e8eaed;
+}
+
+body.theme-dark .course-teacher-inline {
+  color: #9aa0a6;
+}
+
+/* 授業時間帯の表示を改善 */
+.legend-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.legend-table th:first-child {
+  width: 40px;
+}
+
+.legend-table th:nth-child(2) {
+  width: calc(100% - 40px);
+}
+
+/* カラム幅の調整 - 左カラムをさらに広く、右カラムを狭く */
+@media (min-width: 768px) {
+  .container .row .col-sm-3 {
+    width: 40% !important;  /* 30%から45%に拡大 */
+  }
+  
+  .container .row .col-sm-9 {
+    width: 60% !important;  /* 70%から55%に縮小 */
+  }
+}
+
+footer.ft-footer {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-top: 20px;
+  clear: both; /* フロートの解除 */
+  position: relative; /* positionをrelativeに */
+  z-index: 10; /* 必要に応じてz-indexを設定 */
+}
+
+/* メッセージエディタのダークモード対応を強化 */
+body.theme-dark .msg table.header_compose,
+body.theme-dark .msg table.header_compose tr,
+body.theme-dark .msg table.header_compose td,
+body.theme-dark .msg table.header_compose th {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* メッセージエディタの背景が明示的に設定されている要素のオーバーライド */
+body.theme-dark div[style*="background-color:#eeeeee"],
+body.theme-dark div[style*="background-color: #eeeeee"] {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+/* メッセージエディタのテキストエリアと入力フィールド */
+body.theme-dark .msg textarea,
+body.theme-dark .msg input[type="text"],
+body.theme-dark .msg input[type="file"] {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* メッセージエディタの下部ボーダー非表示エリア */
+body.theme-dark div[style*="border: 1px solid #999999"],
+body.theme-dark div[style*="border: 1px solid #999999;border-top:none"] {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+/* ヒントテキスト */
+body.theme-dark .tips {
+  color: #9aa0a6 !important;
+}
+
+/* メッセージの送信ボタン */
+body.theme-dark .msg button,
+body.theme-dark .content button {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark .msg button:hover,
+body.theme-dark .content button:hover {
+  background-color: #4b5053 !important;
+}
+
+/* フレームセットページのダークモード強化 */
+body.theme-dark frameset,
+frameset.theme-dark {
+  background-color: #202124 !important;
+  border: none !important;
+}
+
+body.theme-dark frame,
+body.theme-dark iframe {
+  background-color: #202124 !important;
+  border-color: #5f6368 !important;
+}
+
+/* txtbk_frame.php 用のフレームボーダーとスタイル */
+body.theme-dark frameset[rows],
+body.theme-dark frameset[cols] {
+  border-color: #5f6368 !important;
+}
+
+/* フレーム内のドキュメント本体にもダークモードを適用 */
+html.theme-dark,
+html.theme-dark body {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+/* 教材表示ページ内のコンテンツにダークモードを適用 */
+body.theme-dark .divTitle,
+body.theme-dark .divContent,
+body.theme-dark .content,
+body.theme-dark #ShowTextArea,
+body.theme-dark #text_contents {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* フレーム内要素へのダークモード強化 */
+html.theme-dark,
+html.theme-dark body,
+frame.theme-dark,
+frame.theme-dark body,
+iframe.theme-dark,
+iframe.theme-dark body {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+/* 特定の名前付きフレーム用のスタイル */
+frame[name="webclass_title"],
+frame[name="webclass_chapter"],
+frame[name="webclass_content"] {
+  border-color: var(--border-color) !important;
+}
+
+body.theme-dark frame[name="webclass_title"],
+body.theme-dark frame[name="webclass_chapter"],
+body.theme-dark frame[name="webclass_content"] {
+  border-color: #5f6368 !important;
+}
+
+/* テーブル要素への強制スタイル（フレーム内にも影響） */
+html.theme-dark table,
+html.theme-dark tr,
+html.theme-dark td,
+html.theme-dark th {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* フレーム内のリンクスタイル */
+html.theme-dark a {
+  color: #8ab4f8 !important;
+}
+
+/* フレーム内の各種コンテンツ領域 */
+html.theme-dark .divTitle,
+html.theme-dark .divContent,
+html.theme-dark .text,
+html.theme-dark #ShowTextArea,
+html.theme-dark #text_contents {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* フレーム内のフォーム要素 */
+html.theme-dark input,
+html.theme-dark select,
+html.theme-dark textarea,
+html.theme-dark button {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
 }

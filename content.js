@@ -146,7 +146,7 @@ function setTheme(themeId) {
   applyThemeToFrames();
 }
 
-// フレームやiframeにもテーマを適用する関数
+// フレームやiframeにもテーマを適用する関数をさらに強化
 function applyThemeToFrames() {
   // 現在のテーマを取得
   const isDarkMode = document.body.classList.contains('theme-dark');
@@ -154,20 +154,124 @@ function applyThemeToFrames() {
   const isRed = document.body.classList.contains('theme-red');
   const isPurple = document.body.classList.contains('theme-purple');
   
+  // 名前付きフレーム要素を直接処理（webclass_title, webclass_chapter, webclass_content）
+  try {
+    // webclass_title フレームの処理
+    const titleFrame = document.getElementsByName('webclass_title')[0];
+    if (titleFrame && titleFrame.contentDocument) {
+      applyThemeToDocument(titleFrame.contentDocument, isDarkMode, isGreen, isRed, isPurple);
+    }
+    
+    // webclass_chapter フレームの処理
+    const chapterFrame = document.getElementsByName('webclass_chapter')[0];
+    if (chapterFrame && chapterFrame.contentDocument) {
+      applyThemeToDocument(chapterFrame.contentDocument, isDarkMode, isGreen, isRed, isPurple);
+      
+      // チャプターリストのスタイルをさらに修正
+      if (isDarkMode && chapterFrame.contentDocument.body) {
+        const chapterLinks = chapterFrame.contentDocument.querySelectorAll('a');
+        chapterLinks.forEach(link => {
+          link.style.color = '#8ab4f8';
+        });
+        
+        // その他のテキスト要素にも適用
+        const textElements = chapterFrame.contentDocument.querySelectorAll('body, div, p, span, td, th');
+        textElements.forEach(elem => {
+          elem.style.color = '#e8eaed';
+        });
+      }
+    }
+    
+    // webclass_content フレームの処理
+    const contentFrame = document.getElementsByName('webclass_content')[0];
+    if (contentFrame && contentFrame.contentDocument) {
+      applyThemeToDocument(contentFrame.contentDocument, isDarkMode, isGreen, isRed, isPurple);
+    }
+  } catch (e) {
+    console.error('名前付きフレーム処理エラー:', e);
+  }
+  
+  // 親フレームセットへのテーマ適用処理（既存コード）
+  // 現在のテーマを取得
+  const isDarkMode = document.body.classList.contains('theme-dark');
+  const isGreen = document.body.classList.contains('theme-green');
+  const isRed = document.body.classList.contains('theme-red');
+  const isPurple = document.body.classList.contains('theme-purple');
+  
+  // 親フレームセットにもテーマを適用（txtbk_frame.php対応）
+  try {
+    if (window.frameElement && window.parent && window.parent.document) {
+      const parentFrameset = window.parent.document.querySelector('frameset');
+      if (parentFrameset) {
+        // テーマクラスをクリア
+        parentFrameset.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+        
+        // 現在のテーマを適用
+        if (isDarkMode) parentFrameset.classList.add('theme-dark');
+        if (isGreen) parentFrameset.classList.add('theme-green');
+        if (isRed) parentFrameset.classList.add('theme-red');
+        if (isPurple) parentFrameset.classList.add('theme-purple');
+      }
+      
+      // HTMLタグにもテーマを適用
+      const parentHtml = window.parent.document.documentElement;
+      if (parentHtml) {
+        // テーマクラスをクリア
+        parentHtml.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+        
+        // 現在のテーマを適用
+        if (isDarkMode) parentHtml.classList.add('theme-dark');
+        if (isGreen) parentHtml.classList.add('theme-green');
+        if (isRed) parentHtml.classList.add('theme-red');
+        if (isPurple) parentHtml.classList.add('theme-purple');
+      }
+    }
+  } catch (e) {
+    // 同一生成元ポリシーなどでエラーが発生した場合は無視
+  }
+  
+  // HTMLタグ自体にもテーマクラスを適用
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    // テーマクラスをクリア
+    htmlElement.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+    
+    // 現在のテーマを適用
+    if (isDarkMode) htmlElement.classList.add('theme-dark');
+    if (isGreen) htmlElement.classList.add('theme-green');
+    if (isRed) htmlElement.classList.add('theme-red');
+    if (isPurple) htmlElement.classList.add('theme-purple');
+  }
+  
   // 利用可能なすべてのiframeに適用
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach(iframe => {
     try {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (iframeDoc && iframeDoc.body) {
-        // テーマクラスをクリア
-        iframeDoc.body.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+      if (iframeDoc) {
+        // body要素へのテーマ適用
+        if (iframeDoc.body) {
+          // テーマクラスをクリア
+          iframeDoc.body.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+          
+          // 現在のテーマを適用
+          if (isDarkMode) iframeDoc.body.classList.add('theme-dark');
+          if (isGreen) iframeDoc.body.classList.add('theme-green');
+          if (isRed) iframeDoc.body.classList.add('theme-red');
+          if (isPurple) iframeDoc.body.classList.add('theme-purple');
+        }
         
-        // 現在のテーマを適用
-        if (isDarkMode) iframeDoc.body.classList.add('theme-dark');
-        if (isGreen) iframeDoc.body.classList.add('theme-green');
-        if (isRed) iframeDoc.body.classList.add('theme-red');
-        if (isPurple) iframeDoc.body.classList.add('theme-purple');
+        // html要素へのテーマ適用（ルート要素）
+        if (iframeDoc.documentElement) {
+          // テーマクラスをクリア
+          iframeDoc.documentElement.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+          
+          // 現在のテーマを適用
+          if (isDarkMode) iframeDoc.documentElement.classList.add('theme-dark');
+          if (isGreen) iframeDoc.documentElement.classList.add('theme-green');
+          if (isRed) iframeDoc.documentElement.classList.add('theme-red');
+          if (isPurple) iframeDoc.documentElement.classList.add('theme-purple');
+        }
       }
     } catch (e) {
       // 同一生成元ポリシーによりアクセスできないiframeは無視
@@ -178,27 +282,149 @@ function applyThemeToFrames() {
   try {
     const frames = window.frames;
     if (frames && frames.length) {
+      // すべてのフレームを処理
       for (let i = 0; i < frames.length; i++) {
         try {
           const frameDoc = frames[i].document;
-          if (frameDoc && frameDoc.body) {
-            // テーマクラスをクリア
-            frameDoc.body.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+          if (frameDoc) {
+            // body要素へのテーマ適用
+            if (frameDoc.body) {
+              // テーマクラスをクリア
+              frameDoc.body.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+              
+              // 現在のテーマを適用
+              if (isDarkMode) frameDoc.body.classList.add('theme-dark');
+              if (isGreen) frameDoc.body.classList.add('theme-green');
+              if (isRed) frameDoc.body.classList.add('theme-red');
+              if (isPurple) frameDoc.body.classList.add('theme-purple');
+            }
             
-            // 現在のテーマを適用
-            if (isDarkMode) frameDoc.body.classList.add('theme-dark');
-            if (isGreen) frameDoc.body.classList.add('theme-green');
-            if (isRed) frameDoc.body.classList.add('theme-red');
-            if (isPurple) frameDoc.body.classList.add('theme-purple');
+            // html要素へのテーマ適用（ルート要素）
+            if (frameDoc.documentElement) {
+              // テーマクラスをクリア
+              frameDoc.documentElement.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+              
+              // 現在のテーマを適用
+              if (isDarkMode) frameDoc.documentElement.classList.add('theme-dark');
+              if (isGreen) frameDoc.documentElement.classList.add('theme-green');
+              if (isRed) frameDoc.documentElement.classList.add('theme-red');
+              if (isPurple) frameDoc.documentElement.classList.add('theme-purple');
+            }
+            
+            // フレーム内のコンテンツを処理
+            const contentElements = frameDoc.querySelectorAll('.divTitle, .divContent, #ShowTextArea, #text_contents');
+            contentElements.forEach(elem => {
+              if (isDarkMode) {
+                elem.style.backgroundColor = '#303134';
+                elem.style.color = '#e8eaed';
+                elem.style.borderColor = '#5f6368';
+              } else {
+                // 非ダークモードの場合はスタイルをリセット
+                elem.style.backgroundColor = '';
+                elem.style.color = '';
+                elem.style.borderColor = '';
+              }
+            });
           }
         } catch (e) {
           // クロスオリジンの制限でアクセスできないフレームは無視
         }
       }
     }
+    
+    // フレームセットがある場合は直接スタイルを適用
+    const framesets = document.querySelectorAll('frameset');
+    framesets.forEach(frameset => {
+      // テーマクラスをクリア
+      frameset.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+      
+      // 現在のテーマを適用
+      if (isDarkMode) frameset.classList.add('theme-dark');
+      if (isGreen) frameset.classList.add('theme-green');
+      if (isRed) frameset.classList.add('theme-red');
+      if (isPurple) frameset.classList.add('theme-purple');
+    });
   } catch (e) {
     // フレームへのアクセスエラーを無視
   }
+}
+
+// ドキュメントにテーマを適用する共通関数（新規追加）
+function applyThemeToDocument(doc, isDarkMode, isGreen, isRed, isPurple) {
+  if (!doc) return;
+  
+  // HTML要素へのテーマ適用
+  if (doc.documentElement) {
+    // テーマクラスをクリア
+    doc.documentElement.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+    
+    // 現在のテーマを適用
+    if (isDarkMode) doc.documentElement.classList.add('theme-dark');
+    if (isGreen) doc.documentElement.classList.add('theme-green');
+    if (isRed) doc.documentElement.classList.add('theme-red');
+    if (isPurple) doc.documentElement.classList.add('theme-purple');
+  }
+  
+  // body要素への適用
+  if (doc.body) {
+    // テーマクラスをクリア
+    doc.body.classList.remove('theme-dark', 'theme-green', 'theme-red', 'theme-purple');
+    
+    // 現在のテーマを適用
+    if (isDarkMode) doc.body.classList.add('theme-dark');
+    if (isGreen) doc.body.classList.add('theme-green');
+    if (isRed) doc.body.classList.add('theme-red');
+    if (isPurple) doc.body.classList.add('theme-purple');
+    
+    // ダークモード時は、インラインスタイルも直接適用
+    if (isDarkMode) {
+      doc.body.style.backgroundColor = '#202124';
+      doc.body.style.color = '#e8eaed';
+      
+      // 表とテーブルセルにも適用
+      const tables = doc.querySelectorAll('table');
+      tables.forEach(table => {
+        table.style.backgroundColor = '#303134';
+        table.style.borderColor = '#5f6368';
+      });
+      
+      const cells = doc.querySelectorAll('td, th');
+      cells.forEach(cell => {
+        cell.style.backgroundColor = '#303134';
+        cell.style.color = '#e8eaed';
+        cell.style.borderColor = '#5f6368';
+      });
+      
+      // リンクを青色に
+      const links = doc.querySelectorAll('a');
+      links.forEach(link => {
+        link.style.color = '#8ab4f8';
+      });
+      
+      // フォーム要素にも適用
+      const formElements = doc.querySelectorAll('input, select, textarea, button');
+      formElements.forEach(elem => {
+        elem.style.backgroundColor = '#303134';
+        elem.style.color = '#e8eaed';
+        elem.style.borderColor = '#5f6368';
+      });
+    }
+  }
+  
+  // フレームの特定要素を処理
+  const contentElements = doc.querySelectorAll('.divTitle, .divContent, #ShowTextArea, #text_contents, .text');
+  contentElements.forEach(elem => {
+    if (isDarkMode) {
+      elem.style.backgroundColor = '#303134';
+      elem.style.color = '#e8eaed';
+      elem.style.borderColor = '#5f6368';
+    } else {
+      // 非ダークモードの場合はスタイルをリセット
+      elem.style.backgroundColor = '';
+      elem.style.color = '';
+      elem.style.borderColor = '';
+    }
+  });
 }
 
 // 保存されたテーマを読み込む関数
@@ -1115,10 +1341,10 @@ function highlightTodayClasses() {
     }
   }
   
-  // 現在の授業へスクロールするかどうかのフラグ
-  let shouldScrollToCurrentClass = window.styleupSettings && window.styleupSettings.autoScroll;
-  let currentClassElement = null;
-  
+  // 自動スクロールのフラグを取得
+  let shouldScrollToTodaysClass = window.styleupSettings && window.styleupSettings.autoScroll;
+  let todaysClassElements = []; // 今日の授業要素を格納する配列
+
   // 科目リンクを処理
   const courseLinks = document.querySelectorAll('.courseList li a');
   courseLinks.forEach(link => {
@@ -1131,6 +1357,7 @@ function highlightTodayClasses() {
       if (dayJp === currentDayJp) {
         // 今日の授業をマーク
         link.parentElement.classList.add('today-class');
+        todaysClassElements.push(link); // 今日の授業要素を配列に追加
         
         // 時間情報を追加
         const timeInfo = PERIOD_TIME_MAPPING[period];
@@ -1156,20 +1383,17 @@ function highlightTodayClasses() {
         // 現在時限ならさらにハイライト
         if (period === currentPeriod) {
           link.parentElement.classList.add('current-period');
-          currentClassElement = link;
         }
       }
     }
   });
   
-  // 自動スクロールが有効で、現在の授業がある場合
-  if (shouldScrollToCurrentClass && currentClassElement) {
-    setTimeout(() => {
-      currentClassElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-    }, 1000);
+  // 自動スクロールが有効で、今日の授業がある場合は最初の今日の授業へスクロール
+  if (shouldScrollToTodaysClass && todaysClassElements.length > 0) {
+    // 一瞬でスクロール（smooth効果なし）
+    todaysClassElements[0].scrollIntoView({
+      block: 'center'
+    });
   }
   
   // 時間帯の凡例を追加
@@ -1198,7 +1422,7 @@ function addTimeLegend(currentPeriod = null) {
   const headerPeriod = document.createElement('th');
   headerPeriod.textContent = '時限';
   const headerTime = document.createElement('th');
-  headerTime.textContent = '時間帯';
+  headerTime.textContent = '時間帯 - 科目';
   headerRow.appendChild(headerPeriod);
   headerRow.appendChild(headerTime);
   legendTable.appendChild(headerRow);
@@ -1218,6 +1442,16 @@ function addTimeLegend(currentPeriod = null) {
         const text = link.textContent;
         const match = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
         return match && match[3] === currentDayJp && match[4] === period;
+      })
+      .map(link => {
+        const text = link.textContent;
+        // 科目名と教員名を抽出
+        const courseMatch = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
+        return { 
+          link: link, 
+          courseName: courseMatch ? courseMatch[1].trim() : text,
+          teacherName: courseMatch ? courseMatch[2].trim() : ""
+        };
       });
     
     return todaysCourses;
@@ -1236,20 +1470,30 @@ function addTimeLegend(currentPeriod = null) {
     
     if (courseLinks.length > 0) {
       // この時限に授業がある場合、リンクを作成
+      const timeContainer = document.createElement('div');
+      timeContainer.className = 'time-legend-container';
+      
       const timeLink = document.createElement('a');
       timeLink.textContent = `${timeRange.start}～${timeRange.end}`;
-      timeLink.href = courseLinks[0].href;
+      timeLink.href = courseLinks[0].link.href;
       timeLink.className = 'time-legend-link';
       
       // 現在の時限なら特別なクラスを追加
       if (period === currentPeriod) {
         timeLink.classList.add('current-time');
+        row.classList.add('current-period-row');
       }
       
-      timeLink.title = `${courseLinks[0].textContent.split(',')[0]} に移動`;
+      // 科目名を表示
+      const courseNameSpan = document.createElement('span');
+      courseNameSpan.className = 'time-legend-course-name';
+      courseNameSpan.textContent = ` - ${courseLinks[0].courseName}`;
       
-      // コース名をツールチップとして表示
-      timeCell.appendChild(timeLink);
+      timeLink.title = `${courseLinks[0].courseName} に移動`;
+      
+      timeContainer.appendChild(timeLink);
+      timeContainer.appendChild(courseNameSpan);
+      timeCell.appendChild(timeContainer);
     } else {
       // この時限に授業がない場合は通常テキスト
       timeCell.textContent = `${timeRange.start}～${timeRange.end}`;
@@ -1614,6 +1858,16 @@ window.addEventListener('load', function() {
   // 保存されたテーマを再適用
   loadSavedTheme();
   
+  // フレームセットページの場合は特別な処理を追加
+  if (document.querySelector('frameset')) {
+    console.log('フレームセットページを検出しました');
+    // フレームセット全体にテーマを適用
+    applyThemeToFrames();
+    // より確実に適用するため遅延実行も追加
+    setTimeout(applyThemeToFrames, 500);
+    setTimeout(applyThemeToFrames, 1500);
+  }
+  
   // 遅延実行を追加して確実にすべての「閉じる」ボタンを処理
   setTimeout(replaceCloseButtons, 2000);
 });
@@ -1672,9 +1926,15 @@ function enhanceCourseItems(courseList) {
   const courses = courseList.querySelectorAll(':scope > li');
   
   courses.forEach(course => {
+    // 全てのコースに基本クラスを適用
+    course.classList.add('course-item');
+    
     // 登録科目リストの場合は特別なクラスを追加
     if (isRegisteredCourseList) {
       course.classList.add('registered-course');
+    } else {
+      // 登録科目以外の項目には別クラスを追加
+      course.classList.add('other-course-item');
     }
     
     const linkElement = course.querySelector('a');
@@ -1703,16 +1963,39 @@ function enhanceCourseItems(courseList) {
     const newContent = document.createElement('div');
     newContent.className = 'course-content';
     
-    // 科目名
+    // 科目名を目立たせる
     const titleDiv = document.createElement('div');
     titleDiv.className = 'course-main-info';
     
     const titleLink = document.createElement('a');
     titleLink.href = linkURL;
-    titleLink.textContent = courseTitle;
+    
+    // 科目名と教員名を分けて表示
+    if (courseInfoMatch) {
+      // 登録科目は科目名と教員名を分離表示
+      const courseNameSpan = document.createElement('span');
+      courseNameSpan.className = 'course-name-highlight';
+      courseNameSpan.textContent = courseTitle.trim();
+      titleLink.appendChild(courseNameSpan);
+      
+      // 教員名を追加
+      if (teacherName) {
+        const teacherNameSpan = document.createElement('span');
+        teacherNameSpan.className = 'course-teacher-inline';
+        teacherNameSpan.textContent = ` (${teacherName.trim()})`;
+        titleLink.appendChild(teacherNameSpan);
+      }
+    } else {
+      // 登録科目以外は通常表示
+      titleLink.textContent = fullText.replace('» ', '');
+      if (isRegisteredCourseList === false) {
+        titleLink.classList.add('other-course-link');
+      }
+    }
+    
     titleDiv.appendChild(titleLink);
     
-    // 追加情報（教員名、曜日時限）
+    // 追加情報（曜日時限）
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'course-details';
     
@@ -1767,7 +2050,7 @@ function enhanceCourseItems(courseList) {
       }
     }
     
-    if (teacherName) {
+    if (teacherName && !isRegisteredCourseList) {
       const teacherSpan = document.createElement('span');
       teacherSpan.className = 'course-teacher';
       teacherSpan.textContent = teacherName;
@@ -1790,6 +2073,16 @@ function enhanceCourseItems(courseList) {
       const deadlineInfo = document.createElement('div');
       deadlineInfo.innerHTML = '<span class="course-contents-info">締切が近い課題があります</span>';
       course.appendChild(deadlineInfo);
+    }
+    
+    // 新着メッセージの表示を保持
+    if (originalHTML.includes('新着メッセージ')) {
+      const messageMatch = originalHTML.match(/新着メッセージ\((\d+)\)/);
+      if (messageMatch && messageMatch[1]) {
+        const messageInfo = document.createElement('div');
+        messageInfo.innerHTML = `<span class="course-new-message">新着メッセージ(${messageMatch[1]})</span>`;
+        course.appendChild(messageInfo);
+      }
     }
     
     // クリックハンドラを追加（リンクではない部分をクリックしても移動できるように）
@@ -1851,6 +2144,7 @@ function enhanceCoursesList() {
       titleElement.setAttribute('data-click-handler-added', 'true');
       titleElement.addEventListener('click', function() {
         categoryItem.classList.toggle('collapsed');
+       
         courseList.style.display = categoryItem.classList.contains('collapsed') ? 'none' : 'block';
       });
     }
