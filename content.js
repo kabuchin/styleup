@@ -1115,10 +1115,10 @@ function highlightTodayClasses() {
     }
   }
   
-  // 現在の授業へスクロールするかどうかのフラグ
-  let shouldScrollToCurrentClass = window.styleupSettings && window.styleupSettings.autoScroll;
-  let currentClassElement = null;
-  
+  // 自動スクロールのフラグを取得
+  let shouldScrollToTodaysClass = window.styleupSettings && window.styleupSettings.autoScroll;
+  let todaysClassElements = []; // 今日の授業要素を格納する配列
+
   // 科目リンクを処理
   const courseLinks = document.querySelectorAll('.courseList li a');
   courseLinks.forEach(link => {
@@ -1131,6 +1131,7 @@ function highlightTodayClasses() {
       if (dayJp === currentDayJp) {
         // 今日の授業をマーク
         link.parentElement.classList.add('today-class');
+        todaysClassElements.push(link); // 今日の授業要素を配列に追加
         
         // 時間情報を追加
         const timeInfo = PERIOD_TIME_MAPPING[period];
@@ -1156,20 +1157,17 @@ function highlightTodayClasses() {
         // 現在時限ならさらにハイライト
         if (period === currentPeriod) {
           link.parentElement.classList.add('current-period');
-          currentClassElement = link;
         }
       }
     }
   });
   
-  // 自動スクロールが有効で、現在の授業がある場合
-  if (shouldScrollToCurrentClass && currentClassElement) {
-    setTimeout(() => {
-      currentClassElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-    }, 1000);
+  // 自動スクロールが有効で、今日の授業がある場合は最初の今日の授業へスクロール
+  if (shouldScrollToTodaysClass && todaysClassElements.length > 0) {
+    // 一瞬でスクロール（smooth効果なし）
+    todaysClassElements[0].scrollIntoView({
+      block: 'center'
+    });
   }
   
   // 時間帯の凡例を追加
@@ -1198,7 +1196,7 @@ function addTimeLegend(currentPeriod = null) {
   const headerPeriod = document.createElement('th');
   headerPeriod.textContent = '時限';
   const headerTime = document.createElement('th');
-  headerTime.textContent = '時間帯';
+  headerTime.textContent = '時間帯 - 科目';
   headerRow.appendChild(headerPeriod);
   headerRow.appendChild(headerTime);
   legendTable.appendChild(headerRow);
@@ -1218,6 +1216,16 @@ function addTimeLegend(currentPeriod = null) {
         const text = link.textContent;
         const match = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
         return match && match[3] === currentDayJp && match[4] === period;
+      })
+      .map(link => {
+        const text = link.textContent;
+        // 科目名と教員名を抽出
+        const courseMatch = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
+        return { 
+          link: link, 
+          courseName: courseMatch ? courseMatch[1].trim() : text,
+          teacherName: courseMatch ? courseMatch[2].trim() : ""
+        };
       });
     
     return todaysCourses;
@@ -1236,20 +1244,30 @@ function addTimeLegend(currentPeriod = null) {
     
     if (courseLinks.length > 0) {
       // この時限に授業がある場合、リンクを作成
+      const timeContainer = document.createElement('div');
+      timeContainer.className = 'time-legend-container';
+      
       const timeLink = document.createElement('a');
       timeLink.textContent = `${timeRange.start}～${timeRange.end}`;
-      timeLink.href = courseLinks[0].href;
+      timeLink.href = courseLinks[0].link.href;
       timeLink.className = 'time-legend-link';
       
       // 現在の時限なら特別なクラスを追加
       if (period === currentPeriod) {
         timeLink.classList.add('current-time');
+        row.classList.add('current-period-row');
       }
       
-      timeLink.title = `${courseLinks[0].textContent.split(',')[0]} に移動`;
+      // 科目名を表示
+      const courseNameSpan = document.createElement('span');
+      courseNameSpan.className = 'time-legend-course-name';
+      courseNameSpan.textContent = ` - ${courseLinks[0].courseName}`;
       
-      // コース名をツールチップとして表示
-      timeCell.appendChild(timeLink);
+      timeLink.title = `${courseLinks[0].courseName} に移動`;
+      
+      timeContainer.appendChild(timeLink);
+      timeContainer.appendChild(courseNameSpan);
+      timeCell.appendChild(timeContainer);
     } else {
       // この時限に授業がない場合は通常テキスト
       timeCell.textContent = `${timeRange.start}～${timeRange.end}`;
@@ -1672,9 +1690,15 @@ function enhanceCourseItems(courseList) {
   const courses = courseList.querySelectorAll(':scope > li');
   
   courses.forEach(course => {
+    // 全てのコースに基本クラスを適用
+    course.classList.add('course-item');
+    
     // 登録科目リストの場合は特別なクラスを追加
     if (isRegisteredCourseList) {
       course.classList.add('registered-course');
+    } else {
+      // 登録科目以外の項目には別クラスを追加
+      course.classList.add('other-course-item');
     }
     
     const linkElement = course.querySelector('a');
@@ -1703,16 +1727,39 @@ function enhanceCourseItems(courseList) {
     const newContent = document.createElement('div');
     newContent.className = 'course-content';
     
-    // 科目名
+    // 科目名を目立たせる
     const titleDiv = document.createElement('div');
     titleDiv.className = 'course-main-info';
     
     const titleLink = document.createElement('a');
     titleLink.href = linkURL;
-    titleLink.textContent = courseTitle;
+    
+    // 科目名と教員名を分けて表示
+    if (courseInfoMatch) {
+      // 登録科目は科目名と教員名を分離表示
+      const courseNameSpan = document.createElement('span');
+      courseNameSpan.className = 'course-name-highlight';
+      courseNameSpan.textContent = courseTitle.trim();
+      titleLink.appendChild(courseNameSpan);
+      
+      // 教員名を追加
+      if (teacherName) {
+        const teacherNameSpan = document.createElement('span');
+        teacherNameSpan.className = 'course-teacher-inline';
+        teacherNameSpan.textContent = ` (${teacherName.trim()})`;
+        titleLink.appendChild(teacherNameSpan);
+      }
+    } else {
+      // 登録科目以外は通常表示
+      titleLink.textContent = fullText.replace('» ', '');
+      if (isRegisteredCourseList === false) {
+        titleLink.classList.add('other-course-link');
+      }
+    }
+    
     titleDiv.appendChild(titleLink);
     
-    // 追加情報（教員名、曜日時限）
+    // 追加情報（曜日時限）
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'course-details';
     
@@ -1767,7 +1814,7 @@ function enhanceCourseItems(courseList) {
       }
     }
     
-    if (teacherName) {
+    if (teacherName && !isRegisteredCourseList) {
       const teacherSpan = document.createElement('span');
       teacherSpan.className = 'course-teacher';
       teacherSpan.textContent = teacherName;
@@ -1790,6 +1837,16 @@ function enhanceCourseItems(courseList) {
       const deadlineInfo = document.createElement('div');
       deadlineInfo.innerHTML = '<span class="course-contents-info">締切が近い課題があります</span>';
       course.appendChild(deadlineInfo);
+    }
+    
+    // 新着メッセージの表示を保持
+    if (originalHTML.includes('新着メッセージ')) {
+      const messageMatch = originalHTML.match(/新着メッセージ\((\d+)\)/);
+      if (messageMatch && messageMatch[1]) {
+        const messageInfo = document.createElement('div');
+        messageInfo.innerHTML = `<span class="course-new-message">新着メッセージ(${messageMatch[1]})</span>`;
+        course.appendChild(messageInfo);
+      }
     }
     
     // クリックハンドラを追加（リンクではない部分をクリックしても移動できるように）
@@ -1851,6 +1908,7 @@ function enhanceCoursesList() {
       titleElement.setAttribute('data-click-handler-added', 'true');
       titleElement.addEventListener('click', function() {
         categoryItem.classList.toggle('collapsed');
+       
         courseList.style.display = categoryItem.classList.contains('collapsed') ? 'none' : 'block';
       });
     }
