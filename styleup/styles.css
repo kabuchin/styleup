@@ -2148,3 +2148,62 @@ body.theme-dark .contentsInfoList {
 body.theme-dark .contentsInfoListLabel {
   border-right-color: var(--border-color) !important;
 }
+
+/* 結果履歴のページ */
+.ui-content {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.ui-header {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.ui-title {
+  display: none !important;
+}
+
+.ui-bar-a {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin-top: 5px !important;
+  margin-left: 12px !important;
+}
+
+a.ui-btn {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ui-btn-inner {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: 18px !important;
+  font-weight: lighter !important;
+}
+
+.ui-body-c {
+  margin-top: 64px !important;
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+  text-shadow: none !important;
+}
+
+.ui-page, .ui-btn-up-c, .quotedUserText, .ui-overlay-c {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  text-shadow: none !important;
+}

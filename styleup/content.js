@@ -836,7 +836,15 @@ function insertNewHeader() {
   mainNav.className = 'main-nav';
   
   // ロゴとメニューを追加
-  mainNav.appendChild(createLogo());
+  const logo = createLogo();
+
+  // mbl.php/question_results (結果履歴)ならロゴを非表示に
+  if (window.location.pathname.includes('/mbl.php/question_results')) {
+    logo.style.visibility = 'hidden';
+  }
+
+  mainNav.appendChild(logo);
+
   mainNav.appendChild(createMainMenu());
   
   // コンテナに要素を追加
