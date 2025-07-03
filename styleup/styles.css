@@ -1724,17 +1724,17 @@ body.theme-dark .material-design-icon-icon svg {
 }
 
 /* すべてのページでリンク色をテーマカラーに統一 */
-a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   color: var(--primary-color) !important;
   text-decoration: none;
 }
 
-a:not(.logo):not(.header-icon):not(.main-menu a):hover:not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+a:not(.logo):not(.header-icon):not(.main-menu a):hover:not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   text-decoration: underline;
 }
 
 /* ダークモードのリンク色 */
-body.theme-dark a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+body.theme-dark a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   color: var(--primary-color) !important;
 }
 
@@ -2104,4 +2104,47 @@ body.theme-dark .content button {
 body.theme-dark .msg button:hover,
 body.theme-dark .content button:hover {
   background-color: #4b5053 !important;
+}
+
+/* タブ */
+body.theme-dark .nav-tabs {
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.theme-dark .nav-tabs a:hover {
+  background-color: var(--hover-color) !important;
+  border-color: transparent !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.theme-dark .nav-tabs .active a {
+  background-color: var(--background-color) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--border-color) !important;
+  border-bottom-color: transparent !important;
+}
+
+/* 詳細ページ */
+body.theme-dark .contentsInfo-sectionTitle {
+  background: var(--active-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+body.theme-dark .contentsInfoListData, .contentsInfoListLabel {
+  background: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+body.theme-dark .execUrlWrapper {
+  background-color: var(--hover-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  scrollbar-color: var(--secondary-color) var(--hover-color) !important;
+}
+
+body.theme-dark .contentsInfoList {
+  border-color: var(--border-color) !important;
+}
+
+body.theme-dark .contentsInfoListLabel {
+  border-right-color: var(--border-color) !important;
 }
