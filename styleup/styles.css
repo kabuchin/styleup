@@ -1724,17 +1724,17 @@ body.theme-dark .material-design-icon-icon svg {
 }
 
 /* すべてのページでリンク色をテーマカラーに統一 */
-a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   color: var(--primary-color) !important;
   text-decoration: none;
 }
 
-a:not(.logo):not(.header-icon):not(.main-menu a):hover:not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+a:not(.logo):not(.header-icon):not(.main-menu a):hover:not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   text-decoration: underline;
 }
 
 /* ダークモードのリンク色 */
-body.theme-dark a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a) {
+body.theme-dark a:not(.logo):not(.header-icon):not(.main-menu a):not(.dropdown-toggle):not(.theme-menu a):not(.dropdown-menu a):not(.btn):not(.active a) {
   color: var(--primary-color) !important;
 }
 
@@ -2104,4 +2104,106 @@ body.theme-dark .content button {
 body.theme-dark .msg button:hover,
 body.theme-dark .content button:hover {
   background-color: #4b5053 !important;
+}
+
+/* タブ */
+body.theme-dark .nav-tabs {
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.theme-dark .nav-tabs a:hover {
+  background-color: var(--hover-color) !important;
+  border-color: transparent !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+body.theme-dark .nav-tabs .active a {
+  background-color: var(--background-color) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--border-color) !important;
+  border-bottom-color: transparent !important;
+}
+
+/* 詳細ページ */
+body.theme-dark .contentsInfo-sectionTitle {
+  background: var(--active-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+body.theme-dark .contentsInfoListData, .contentsInfoListLabel {
+  background: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+body.theme-dark .execUrlWrapper {
+  background-color: var(--hover-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  scrollbar-color: var(--secondary-color) var(--hover-color) !important;
+}
+
+body.theme-dark .contentsInfoList {
+  border-color: var(--border-color) !important;
+}
+
+body.theme-dark .contentsInfoListLabel {
+  border-right-color: var(--border-color) !important;
+}
+
+/* 結果履歴のページ */
+.ui-content {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.ui-header {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.ui-title {
+  display: none !important;
+}
+
+.ui-bar-a {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin-top: 5px !important;
+  margin-left: 12px !important;
+}
+
+a.ui-btn {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ui-btn-inner {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-size: 18px !important;
+  font-weight: lighter !important;
+}
+
+.ui-body-c {
+  margin-top: 64px !important;
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+  text-shadow: none !important;
+}
+
+.ui-page, .ui-btn-up-c, .quotedUserText, .ui-overlay-c {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+  color: var(--text-color) !important;
+  text-shadow: none !important;
 }
