@@ -3,6 +3,106 @@
  * WebClassのインターフェースを改善するための拡張機能
  */
 
+// ========================================
+// 最速で実行：ちらつき防止のため同期的にテーマを適用
+// ========================================
+(function applyThemeImmediately() {
+  // ローカルストレージからテーマをキャッシュとして読み込み（高速）
+  const cachedTheme = localStorage.getItem('styleup-theme-cache');
+  
+  // ちらつき防止: 最初はopacity:0、スタイル適用後に表示
+  const hidingStyle = document.createElement('style');
+  hidingStyle.id = 'styleup-hiding-style';
+  hidingStyle.textContent = `
+    html:not(.styleup-ready) body {
+      opacity: 0 !important;
+      transition: opacity 0.05s ease-out;
+    }
+    html.styleup-ready body {
+      opacity: 1 !important;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(hidingStyle);
+  
+  if (cachedTheme && cachedTheme !== 'default') {
+    document.documentElement.classList.add(cachedTheme);
+    // bodyがない場合もあるため、存在確認
+    if (document.body) {
+      document.body.classList.add(cachedTheme);
+    } else {
+      // bodyが作成されたら即座にクラスを追加
+      const observer = new MutationObserver((mutations, obs) => {
+        if (document.body) {
+          document.body.classList.add(cachedTheme);
+          obs.disconnect();
+        }
+      });
+      observer.observe(document.documentElement, { childList: true });
+    }
+  }
+  
+  // カスタムカラーをキャッシュから読み込んで即座に適用
+  try {
+    const cachedColors = localStorage.getItem('styleup-custom-colors');
+    if (cachedColors) {
+      const { mainColor, subColor, accentColor } = JSON.parse(cachedColors);
+      const colorCSS = `
+        :root {
+          --custom-primary: ${mainColor};
+          --custom-sub: ${subColor || mainColor};
+          --custom-accent: ${accentColor || '#fbbc04'};
+        }
+      `;
+      const colorStyle = document.createElement('style');
+      colorStyle.id = 'styleup-cached-colors';
+      colorStyle.textContent = colorCSS;
+      (document.head || document.documentElement).appendChild(colorStyle);
+    }
+  } catch (e) {}
+  
+  // クリティカルCSSを即座に注入
+  const criticalCSS = `
+    :root {
+      --primary-color: #1a73e8;
+      --background-color: #ffffff;
+      --text-color: #202124;
+    }
+    html.theme-dark, body.theme-dark {
+      --primary-color: #8ab4f8;
+      --background-color: #202124;
+      --text-color: #e8eaed;
+      background-color: #202124 !important;
+      color: #e8eaed !important;
+    }
+    header .navbar.navbar-default { display: none !important; }
+    .side-block-title-hidden, .side-block-content-hidden { display: none !important; }
+  `;
+  
+  const style = document.createElement('style');
+  style.id = 'styleup-instant-css';
+  style.textContent = criticalCSS;
+  (document.head || document.documentElement).appendChild(style);
+  
+  // DOMContentLoaded前でも可能な限り早く表示を有効化
+  function showPage() {
+    document.documentElement.classList.add('styleup-ready');
+  }
+  
+  // スタイルシートの読み込み完了を待つか、タイムアウト後に表示
+  if (document.readyState === 'loading') {
+    // 最大100msまで待機、それ以降は強制表示
+    const timeout = setTimeout(showPage, 100);
+    document.addEventListener('DOMContentLoaded', () => {
+      clearTimeout(timeout);
+      // 少し遅延してスタイルが適用される時間を確保
+      requestAnimationFrame(showPage);
+    }, { once: true });
+  } else {
+    // すでにDOMが読み込まれている場合は即座に表示
+    showPage();
+  }
+})();
+
 // 時限と時間帯のマッピング
 const PERIOD_TIME_MAPPING = {
   '1': { start: '9:00', end: '10:30' },
@@ -28,6 +128,195 @@ const THEME_OPTIONS = [
   { id: 'theme-purple', name: 'パープル', previewClass: 'purple-preview' },
   { id: 'theme-dark', name: 'ダークモード', previewClass: 'dark-preview' }
 ];
+
+// カラープリセット
+const COLOR_PRESETS = {
+  blue: { main: '#1a73e8', sub: '#4285f4', accent: '#fbbc04', name: 'ブルー' },
+  green: { main: '#0f9d58', sub: '#34a853', accent: '#fbbc04', name: 'グリーン' },
+  red: { main: '#d93025', sub: '#ea4335', accent: '#fbbc04', name: 'レッド' },
+  purple: { main: '#673ab7', sub: '#9c27b0', accent: '#ff9800', name: 'パープル' },
+  orange: { main: '#e65100', sub: '#ff6d00', accent: '#2979ff', name: 'オレンジ' },
+  teal: { main: '#00796b', sub: '#009688', accent: '#ffab00', name: 'ティール' },
+  pink: { main: '#c2185b', sub: '#e91e63', accent: '#7c4dff', name: 'ピンク' },
+  indigo: { main: '#303f9f', sub: '#3f51b5', accent: '#ff5722', name: 'インディゴ' }
+};
+
+// 開講情報キャッシュのキー
+const COURSE_SCHEDULE_CACHE_KEY = 'styleup-course-schedules';
+const CACHE_EXPIRY_DAYS = 7; // キャッシュ有効期限（日）
+
+/**
+ * 開講情報管理機能
+ */
+// 開講情報のキャッシュを取得
+function getCourseScheduleCache() {
+  try {
+    const cached = localStorage.getItem(COURSE_SCHEDULE_CACHE_KEY);
+    if (cached) {
+      const data = JSON.parse(cached);
+      // 有効期限チェック
+      if (data.expiry && Date.now() < data.expiry) {
+        return data.schedules || {};
+      }
+    }
+  } catch (e) {
+    console.error('開講情報キャッシュ読み込みエラー:', e);
+  }
+  return {};
+}
+
+// 開講情報をキャッシュに保存
+function saveCourseScheduleCache(schedules) {
+  try {
+    const data = {
+      schedules: schedules,
+      expiry: Date.now() + (CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
+    };
+    localStorage.setItem(COURSE_SCHEDULE_CACHE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('開講情報キャッシュ保存エラー:', e);
+  }
+}
+
+// 開講情報から時間割をパース
+// 例: "水曜日 4限, 水曜日 5限" → [{day: '水', period: '4'}, {day: '水', period: '5'}]
+function parseScheduleText(scheduleText) {
+  const schedules = [];
+  if (!scheduleText) return schedules;
+  
+  // "水曜日 4限" のパターンにマッチ
+  const pattern = /([月火水木金土日])曜日\s*(\d)限/g;
+  let match;
+  while ((match = pattern.exec(scheduleText)) !== null) {
+    schedules.push({
+      day: match[1],
+      period: match[2]
+    });
+  }
+  return schedules;
+}
+
+// コースIDから開講情報をフェッチ（非同期）
+async function fetchCourseSchedule(courseId) {
+  const cache = getCourseScheduleCache();
+  
+  // キャッシュにある場合はそれを返す
+  if (cache[courseId]) {
+    return cache[courseId];
+  }
+  
+  try {
+    const infoUrl = `https://ed24lb.osaka-sandai.ac.jp/webclass/course.php/${courseId}/info`;
+    const response = await fetch(infoUrl, { credentials: 'include' });
+    
+    if (!response.ok) {
+      console.warn(`開講情報取得失敗: ${courseId}`);
+      return null;
+    }
+    
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // dl-horizontal から時間割を探す
+    const dlElements = doc.querySelectorAll('dl.dl-horizontal dt');
+    let scheduleText = '';
+    
+    for (const dt of dlElements) {
+      if (dt.textContent.trim() === '時間割') {
+        const dd = dt.nextElementSibling;
+        if (dd && dd.tagName === 'DD') {
+          scheduleText = dd.textContent.trim();
+          break;
+        }
+      }
+    }
+    
+    const schedules = parseScheduleText(scheduleText);
+    
+    if (schedules.length > 0) {
+      // キャッシュに保存
+      cache[courseId] = schedules;
+      saveCourseScheduleCache(cache);
+      console.log(`開講情報をキャッシュ: ${courseId}`, schedules);
+    }
+    
+    return schedules;
+  } catch (e) {
+    console.error(`開講情報フェッチエラー: ${courseId}`, e);
+    return null;
+  }
+}
+
+// 科目リンクのURLからコースIDを抽出
+function extractCourseIdFromUrl(url) {
+  const match = url.match(/\/course\.php\/([^/]+)/);
+  return match ? match[1] : null;
+}
+
+// 時間割テキストを生成（例: "水4, 水5"）
+function formatScheduleDisplay(schedules) {
+  if (!schedules || schedules.length === 0) return '';
+  return schedules.map(s => `${s.day}${s.period}`).join(', ');
+}
+
+// 「他」がマークされた時間割バッジを非同期で更新
+async function updatePendingScheduleBadges() {
+  const pendingBadges = document.querySelectorAll('.course-time-badge[data-needs-schedule-fetch="true"]');
+  
+  if (pendingBadges.length === 0) return;
+  
+  console.log(`スケジュール取得が必要なバッジ: ${pendingBadges.length}件`);
+  
+  const dayMap = {
+    '月': 'day-mon',
+    '火': 'day-tue',
+    '水': 'day-wed',
+    '木': 'day-thu',
+    '金': 'day-fri',
+    '土': 'day-sat',
+    '日': 'day-sun'
+  };
+  
+  for (const badge of pendingBadges) {
+    const courseUrl = badge.dataset.courseUrl;
+    if (!courseUrl) continue;
+    
+    const courseId = extractCourseIdFromUrl(courseUrl);
+    if (!courseId) continue;
+    
+    try {
+      const schedules = await fetchCourseSchedule(courseId);
+      
+      if (schedules && schedules.length > 0) {
+        // 完全なスケジュールで表示を更新
+        const displayText = schedules.map(s => `${s.day}${s.period}限`).join(', ');
+        badge.textContent = displayText;
+        
+        // 既存の曜日クラスを削除
+        Object.values(dayMap).forEach(cls => badge.classList.remove(cls));
+        
+        // 複数の曜日がある場合は最初の曜日のクラスを適用
+        if (schedules[0] && dayMap[schedules[0].day]) {
+          badge.classList.add(dayMap[schedules[0].day]);
+        }
+        
+        // 複数時限の場合は専用クラスを追加
+        if (schedules.length > 1) {
+          badge.classList.add('multiple-periods');
+        }
+        
+        // フェッチ完了マーカーを更新
+        badge.classList.remove('schedule-pending');
+        badge.removeAttribute('data-needs-schedule-fetch');
+        
+        console.log(`スケジュール更新完了: ${courseId} → ${displayText}`);
+      }
+    } catch (e) {
+      console.error(`スケジュール更新エラー: ${courseId}`, e);
+    }
+  }
+}
 
 /**
  * ユーティリティ関数
@@ -131,10 +420,19 @@ function loadFonts() {
 function setTheme(themeId) {
   // 現在のテーマクラスをすべて削除
   document.body.classList.remove('theme-green', 'theme-red', 'theme-purple', 'theme-dark');
+  document.documentElement.classList.remove('theme-green', 'theme-red', 'theme-purple', 'theme-dark');
   
   // デフォルト以外のテーマの場合は、対応するクラスを追加
   if (themeId !== 'default') {
     document.body.classList.add(themeId);
+    document.documentElement.classList.add(themeId);
+  }
+  
+  // ローカルストレージにキャッシュ保存（次回アクセス時の高速化）
+  try {
+    localStorage.setItem('styleup-theme-cache', themeId);
+  } catch (e) {
+    // ローカルストレージが使えない場合は無視
   }
   
   // テーマIDをChromeストレージに保存
@@ -201,6 +499,435 @@ function applyThemeToFrames() {
   }
 }
 
+/**
+ * 完全な設定を適用（新UI対応）
+ */
+function applyFullSettings(settings) {
+  console.log('完全な設定を適用:', settings);
+  
+  // ベーステーマ適用
+  if (settings.baseTheme === 'dark') {
+    setTheme('theme-dark');
+  } else if (settings.selectedTheme) {
+    setTheme(settings.selectedTheme);
+  } else {
+    setTheme('default');
+  }
+  
+  // カスタムカラー適用
+  applyCustomColors(settings.mainColor, settings.subColor, settings.accentColor);
+  
+  // 曜日タグスタイル適用
+  applyDayTagStyle(settings.dayTagStyle, settings.dayColors);
+  
+  // アニメーション設定
+  if (settings.enableAnimations === false) {
+    document.body.classList.add('no-animations');
+  } else {
+    document.body.classList.remove('no-animations');
+  }
+  
+  // ぼかし効果設定
+  if (settings.enableBlur === false) {
+    document.body.classList.add('no-blur');
+  } else {
+    document.body.classList.remove('no-blur');
+  }
+  
+  // フォントサイズ
+  if (settings.courseFontSize) {
+    applyCourseFontSize(settings.courseFontSize);
+  }
+  
+  // グローバル設定更新
+  window.styleupSettings = {
+    ...(window.styleupSettings || {}),
+    ...settings
+  };
+}
+
+/**
+ * カスタムカラーを適用
+ */
+function applyCustomColors(mainColor, subColor, accentColor) {
+  if (!mainColor) return;
+  
+  // 動的スタイル要素を取得または作成
+  let styleEl = document.getElementById('styleup-custom-colors');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'styleup-custom-colors';
+    document.head.appendChild(styleEl);
+  }
+  
+  // サブカラーとアクセントカラーのデフォルト値
+  const sub = subColor || mainColor;
+  const accent = accentColor || '#fbbc04';
+  
+  // 明るい色かどうかを判定（テキスト色を決定するため）
+  function isLightColor(color) {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 155;
+  }
+  
+  const textOnMain = isLightColor(mainColor) ? '#202124' : '#ffffff';
+  const textOnSub = isLightColor(sub) ? '#202124' : '#ffffff';
+  
+  const css = `
+    :root {
+      --custom-primary: ${mainColor};
+      --custom-sub: ${sub};
+      --custom-accent: ${accent};
+      --custom-text-on-primary: ${textOnMain};
+      --custom-text-on-sub: ${textOnSub};
+    }
+    
+    /* ========================================
+       ヘッダー・ナビゲーション
+       ======================================== */
+    .custom-header {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+    }
+    
+    .custom-header .logo {
+      color: ${textOnMain} !important;
+    }
+    
+    .custom-header .main-menu a {
+      color: ${textOnMain} !important;
+      opacity: 0.9;
+    }
+    
+    .custom-header .main-menu a:hover {
+      background-color: rgba(255,255,255,0.15) !important;
+      color: ${textOnMain} !important;
+      opacity: 1;
+    }
+    
+    .custom-header .main-menu a.active {
+      background-color: rgba(255,255,255,0.2) !important;
+    }
+    
+    .custom-header .header-icon {
+      color: ${textOnMain} !important;
+      opacity: 0.9;
+    }
+    
+    .custom-header .header-icon:hover {
+      background-color: rgba(255,255,255,0.15) !important;
+      opacity: 1;
+    }
+    
+    .custom-header .user-info span {
+      color: ${textOnMain} !important;
+    }
+    
+    /* ========================================
+       コースリスト・タイトル
+       ======================================== */
+    .courseTree-levelTitle,
+    .registered-courses .courseTree-levelTitle {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+      color: ${textOnMain} !important;
+    }
+    
+    /* ========================================
+       リンク・ホバー効果
+       ======================================== */
+    a {
+      color: ${mainColor};
+    }
+    
+    a:hover {
+      color: ${sub} !important;
+    }
+    
+    .course-name-highlight {
+      color: ${mainColor} !important;
+    }
+    
+    .course-name-highlight:hover {
+      color: ${sub} !important;
+    }
+    
+    /* ========================================
+       ボタン・入力要素
+       ======================================== */
+    .btn-primary,
+    .styleup-time-badge,
+    input[type="submit"]:not(.form-cancel),
+    button.btn-primary,
+    input.btn-primary {
+      background-color: ${mainColor} !important;
+      border-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    .btn-primary:hover,
+    .styleup-time-badge:hover,
+    input[type="submit"]:not(.form-cancel):hover {
+      background-color: ${sub} !important;
+      border-color: ${sub} !important;
+    }
+    
+    /* ========================================
+       WebClass固有要素
+       ======================================== */
+    /* ページタイトル (h1.pkgtitle.bgc_main) */
+    h1.pkgtitle,
+    h1.pkgtitle.bgc_main,
+    .pkgtitle.bgc_main {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+      color: ${textOnMain} !important;
+      border: none !important;
+    }
+    
+    /* bgc_main クラス全般 */
+    .bgc_main,
+    dt.bgc_main {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    /* ナビゲーション */
+    .navi dt.bgc_main {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    /* タブ・アクティブ状態 */
+    .tab-active,
+    .active-tab,
+    li.active > a {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    /* フォーカス・選択状態 */
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: ${mainColor} !important;
+      box-shadow: 0 0 0 3px rgba(${hexToRgb(mainColor)}, 0.15) !important;
+    }
+    
+    /* 選択されたアイテム */
+    .selected,
+    tr.selected,
+    .item-selected {
+      background-color: rgba(${hexToRgb(mainColor)}, 0.1) !important;
+    }
+    
+    /* ========================================
+       ダークモード時の調整
+       ======================================== */
+    body.theme-dark .custom-header {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+    }
+    
+    body.theme-dark a {
+      color: ${sub};
+    }
+    
+    body.theme-dark a:hover {
+      color: ${mainColor} !important;
+    }
+    
+    body.theme-dark h1.pkgtitle,
+    body.theme-dark h1.pkgtitle.bgc_main,
+    body.theme-dark .pkgtitle.bgc_main {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+      color: ${textOnMain} !important;
+    }
+    
+    body.theme-dark .bgc_main,
+    body.theme-dark dt.bgc_main {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    body.theme-dark .navi dt.bgc_main {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    body.theme-dark .navi dd a {
+      color: ${sub} !important;
+    }
+    
+    body.theme-dark .navi dd a:hover {
+      color: ${mainColor} !important;
+    }
+    
+    body.theme-dark .courseTree-levelTitle,
+    body.theme-dark .registered-courses .courseTree-levelTitle {
+      background: linear-gradient(135deg, ${mainColor}, ${sub}) !important;
+      color: ${textOnMain} !important;
+    }
+    
+    body.theme-dark .btn-primary,
+    body.theme-dark input[type="submit"]:not(.form-cancel) {
+      background-color: ${mainColor} !important;
+      border-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    body.theme-dark .btn-primary:hover,
+    body.theme-dark input[type="submit"]:not(.form-cancel):hover {
+      background-color: ${sub} !important;
+    }
+    
+    /* ドロップダウンメニューのアクティブ状態 */
+    body.theme-dark .header-dropdown-menu li button:hover {
+      background-color: ${mainColor} !important;
+      color: ${textOnMain} !important;
+    }
+    
+    /* 今日の授業ハイライト */
+    .today-class {
+      border-left-color: ${mainColor} !important;
+    }
+    
+    body.theme-dark .today-class {
+      border-left-color: ${sub} !important;
+      background-color: rgba(${hexToRgb(mainColor)}, 0.1) !important;
+    }
+  `;
+  
+  styleEl.textContent = css;
+  
+  // ローカルストレージにも保存（高速読み込み用）
+  try {
+    localStorage.setItem('styleup-custom-colors', JSON.stringify({ mainColor, subColor, accentColor }));
+  } catch (e) {}
+}
+
+// HEX色をRGB文字列に変換するヘルパー関数
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result 
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '26, 115, 232';
+}
+
+/**
+ * 曜日タグスタイルを適用
+ */
+function applyDayTagStyle(style, dayColors) {
+  if (!style) style = 'colorful';
+  
+  // 動的スタイル要素を取得または作成
+  let styleEl = document.getElementById('styleup-day-tag-styles');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'styleup-day-tag-styles';
+    document.head.appendChild(styleEl);
+  }
+  
+  // デフォルトの曜日カラー
+  const colors = {
+    mon: dayColors?.mon || '#ef5350',
+    tue: dayColors?.tue || '#ff9800',
+    wed: dayColors?.wed || '#4caf50',
+    thu: dayColors?.thu || '#2196f3',
+    fri: dayColors?.fri || '#9c27b0',
+    sat: dayColors?.sat || '#00bcd4',
+    sun: dayColors?.sun || '#ff5722'
+  };
+  
+  let css = '';
+  
+  switch (style) {
+    case 'colorful':
+      css = `
+        .course-time-badge.day-mon { background-color: ${colors.mon} !important; color: white !important; }
+        .course-time-badge.day-tue { background-color: ${colors.tue} !important; color: white !important; }
+        .course-time-badge.day-wed { background-color: ${colors.wed} !important; color: white !important; }
+        .course-time-badge.day-thu { background-color: ${colors.thu} !important; color: white !important; }
+        .course-time-badge.day-fri { background-color: ${colors.fri} !important; color: white !important; }
+        .course-time-badge.day-sat { background-color: ${colors.sat} !important; color: white !important; }
+        .course-time-badge.day-sun { background-color: ${colors.sun} !important; color: white !important; }
+      `;
+      break;
+      
+    case 'monotone':
+      css = `
+        .course-time-badge.day-mon,
+        .course-time-badge.day-tue,
+        .course-time-badge.day-wed,
+        .course-time-badge.day-thu,
+        .course-time-badge.day-fri { background-color: #616161 !important; color: white !important; }
+        .course-time-badge.day-sat { background-color: #424242 !important; color: white !important; }
+        .course-time-badge.day-sun { background-color: #757575 !important; color: white !important; }
+        
+        body.theme-dark .course-time-badge.day-mon,
+        body.theme-dark .course-time-badge.day-tue,
+        body.theme-dark .course-time-badge.day-wed,
+        body.theme-dark .course-time-badge.day-thu,
+        body.theme-dark .course-time-badge.day-fri { background-color: #9e9e9e !important; color: #212121 !important; }
+        body.theme-dark .course-time-badge.day-sat { background-color: #757575 !important; color: white !important; }
+        body.theme-dark .course-time-badge.day-sun { background-color: #bdbdbd !important; color: #212121 !important; }
+      `;
+      break;
+      
+    case 'single':
+      const mainColor = window.styleupSettings?.mainColor || '#1a73e8';
+      css = `
+        .course-time-badge.day-mon,
+        .course-time-badge.day-tue,
+        .course-time-badge.day-wed,
+        .course-time-badge.day-thu,
+        .course-time-badge.day-fri,
+        .course-time-badge.day-sat,
+        .course-time-badge.day-sun { 
+          background-color: ${mainColor} !important; 
+          color: white !important; 
+        }
+      `;
+      break;
+      
+    case 'gradient':
+      const gradMain = window.styleupSettings?.mainColor || '#1a73e8';
+      const gradSub = window.styleupSettings?.subColor || '#4285f4';
+      css = `
+        .course-time-badge.day-mon,
+        .course-time-badge.day-tue,
+        .course-time-badge.day-wed,
+        .course-time-badge.day-thu,
+        .course-time-badge.day-fri,
+        .course-time-badge.day-sat,
+        .course-time-badge.day-sun { 
+          background: linear-gradient(135deg, ${gradMain}, ${gradSub}) !important; 
+          color: white !important; 
+        }
+      `;
+      break;
+      
+    case 'outline':
+      css = `
+        .course-time-badge.day-mon { background: transparent !important; border: 2px solid ${colors.mon} !important; color: ${colors.mon} !important; }
+        .course-time-badge.day-tue { background: transparent !important; border: 2px solid ${colors.tue} !important; color: ${colors.tue} !important; }
+        .course-time-badge.day-wed { background: transparent !important; border: 2px solid ${colors.wed} !important; color: ${colors.wed} !important; }
+        .course-time-badge.day-thu { background: transparent !important; border: 2px solid ${colors.thu} !important; color: ${colors.thu} !important; }
+        .course-time-badge.day-fri { background: transparent !important; border: 2px solid ${colors.fri} !important; color: ${colors.fri} !important; }
+        .course-time-badge.day-sat { background: transparent !important; border: 2px solid ${colors.sat} !important; color: ${colors.sat} !important; }
+        .course-time-badge.day-sun { background: transparent !important; border: 2px solid ${colors.sun} !important; color: ${colors.sun} !important; }
+      `;
+      break;
+  }
+  
+  styleEl.textContent = css;
+  
+  // ローカルストレージにも保存
+  try {
+    localStorage.setItem('styleup-day-tag-style', JSON.stringify({ style, dayColors: colors }));
+  } catch (e) {}
+}
+
 // 保存されたテーマを読み込む関数
 function loadSavedTheme() {
   chrome.storage.sync.get('selectedTheme', function(data) {
@@ -219,17 +946,56 @@ function loadSettings() {
   chrome.storage.sync.get({
     'selectedTheme': 'default',
     'autoScroll': true,
-    'courseFontSize': 14  // 科目名フォントサイズのデフォルト値
+    'courseFontSize': 14,
+    'baseTheme': 'light',
+    'mainColor': '#1a73e8',
+    'subColor': '#4285f4',
+    'accentColor': '#fbbc04',
+    'dayTagStyle': 'colorful',
+    'dayColors': {
+      mon: '#ef5350',
+      tue: '#ff9800',
+      wed: '#4caf50',
+      thu: '#2196f3',
+      fri: '#9c27b0',
+      sat: '#00bcd4',
+      sun: '#ff5722'
+    },
+    'enableAnimations': true,
+    'enableBlur': true
   }, function(data) {
     // テーマを適用
-    if (data.selectedTheme) {
+    if (data.baseTheme === 'dark') {
+      setTheme('theme-dark');
+    } else if (data.selectedTheme) {
       setTheme(data.selectedTheme);
+    }
+    
+    // カスタムカラーを適用
+    applyCustomColors(data.mainColor, data.subColor, data.accentColor);
+    
+    // 曜日タグスタイルを適用
+    applyDayTagStyle(data.dayTagStyle, data.dayColors);
+    
+    // アニメーション設定
+    if (data.enableAnimations === false) {
+      document.body.classList.add('no-animations');
+    }
+    
+    // ぼかし効果設定
+    if (data.enableBlur === false) {
+      document.body.classList.add('no-blur');
     }
     
     // 自動スクロール設定を保存
     window.styleupSettings = {
       autoScroll: data.autoScroll,
-      courseFontSize: data.courseFontSize
+      courseFontSize: data.courseFontSize,
+      mainColor: data.mainColor,
+      subColor: data.subColor,
+      accentColor: data.accentColor,
+      dayTagStyle: data.dayTagStyle,
+      dayColors: data.dayColors
     };
     
     console.log('設定を読み込みました:', window.styleupSettings);
@@ -543,7 +1309,7 @@ function createHeaderIcon(iconName, title, href) {
   return icon;
 }
 
-// テーマスイッチャーを生成（シンプル化）
+// テーマスイッチャーを生成（新UI対応）
 function createThemeSwitcher() {
   // コンテナ作成
   const container = document.createElement('div');
@@ -553,12 +1319,12 @@ function createThemeSwitcher() {
   const button = document.createElement('a');
   button.href = 'javascript:void(0);';
   button.className = 'header-icon';
-  button.title = 'テーマ';
+  button.title = 'テーマ設定';
   button.innerHTML = '<span class="material-icons">palette</span>';
   
   // ドロップダウンメニュー作成
   const menu = document.createElement('ul');
-  menu.className = 'header-dropdown-menu';
+  menu.className = 'header-dropdown-menu theme-menu';
   
   // クリックイベント
   button.addEventListener('click', function(e) {
@@ -571,26 +1337,105 @@ function createThemeSwitcher() {
     });
   });
   
-  // テーマオプションを追加
-  THEME_OPTIONS.forEach(theme => {
-    const li = document.createElement('li');
-    const btn = document.createElement('button');
-    btn.dataset.theme = theme.id;
+  // ダークモードトグル
+  const darkModeLi = document.createElement('li');
+  darkModeLi.className = 'theme-toggle-item';
+  const darkModeBtn = document.createElement('button');
+  darkModeBtn.className = 'theme-toggle-btn';
+  
+  const updateDarkModeBtn = () => {
+    const isDark = document.body.classList.contains('theme-dark');
+    darkModeBtn.innerHTML = `
+      <span class="material-icons">${isDark ? 'light_mode' : 'dark_mode'}</span>
+      <span>${isDark ? 'ライトモード' : 'ダークモード'}</span>
+    `;
+  };
+  updateDarkModeBtn();
+  
+  darkModeBtn.onclick = function() {
+    const isDark = document.body.classList.contains('theme-dark');
+    if (isDark) {
+      setTheme('default');
+      chrome.storage.sync.set({ baseTheme: 'light' });
+    } else {
+      setTheme('theme-dark');
+      chrome.storage.sync.set({ baseTheme: 'dark' });
+    }
+    updateDarkModeBtn();
+  };
+  
+  darkModeLi.appendChild(darkModeBtn);
+  menu.appendChild(darkModeLi);
+  
+  // 区切り線
+  const separator = document.createElement('li');
+  separator.className = 'menu-separator';
+  menu.appendChild(separator);
+  
+  // クイックカラー選択
+  const colorLi = document.createElement('li');
+  colorLi.className = 'quick-colors-item';
+  const colorLabel = document.createElement('span');
+  colorLabel.className = 'quick-colors-label';
+  colorLabel.textContent = 'クイックカラー';
+  colorLi.appendChild(colorLabel);
+  
+  const colorGrid = document.createElement('div');
+  colorGrid.className = 'quick-color-grid';
+  
+  const quickColors = [
+    { main: '#1a73e8', sub: '#4285f4', name: 'ブルー' },
+    { main: '#0f9d58', sub: '#34a853', name: 'グリーン' },
+    { main: '#d93025', sub: '#ea4335', name: 'レッド' },
+    { main: '#673ab7', sub: '#9c27b0', name: 'パープル' },
+    { main: '#f57c00', sub: '#ff9800', name: 'オレンジ' },
+    { main: '#00796b', sub: '#009688', name: 'ティール' },
+    { main: '#c2185b', sub: '#e91e63', name: 'ピンク' },
+    { main: '#303f9f', sub: '#3f51b5', name: 'インディゴ' }
+  ];
+  
+  quickColors.forEach(color => {
+    const colorBtn = document.createElement('button');
+    colorBtn.className = 'quick-color-btn';
+    colorBtn.title = color.name;
+    colorBtn.style.background = `linear-gradient(135deg, ${color.main} 50%, ${color.sub} 50%)`;
     
-    const colorPreview = document.createElement('span');
-    colorPreview.className = `color-preview ${theme.previewClass}`;
-    
-    btn.appendChild(colorPreview);
-    btn.appendChild(document.createTextNode(theme.name));
-    
-    btn.onclick = function() {
-      setTheme(theme.id);
+    colorBtn.onclick = function() {
+      applyCustomColors(color.main, color.sub, '#fbbc04');
+      chrome.storage.sync.set({
+        mainColor: color.main,
+        subColor: color.sub,
+        colorPreset: color.name.toLowerCase()
+      });
       menu.classList.remove('active');
     };
     
-    li.appendChild(btn);
-    menu.appendChild(li);
+    colorGrid.appendChild(colorBtn);
   });
+  
+  colorLi.appendChild(colorGrid);
+  menu.appendChild(colorLi);
+  
+  // 区切り線
+  const separator2 = document.createElement('li');
+  separator2.className = 'menu-separator';
+  menu.appendChild(separator2);
+  
+  // 詳細設定へのリンク
+  const settingsLi = document.createElement('li');
+  const settingsBtn = document.createElement('button');
+  settingsBtn.className = 'settings-link-btn';
+  settingsBtn.innerHTML = `
+    <span class="material-icons">settings</span>
+    <span>詳細設定（拡張機能）</span>
+  `;
+  settingsBtn.onclick = function() {
+    // 拡張機能のポップアップを開くようにユーザーに案内
+    alert('拡張機能アイコンをクリックして、詳細なテーマ設定を行ってください。\\n\\nカスタムカラーや曜日タグスタイルなど、より詳細な設定が可能です。');
+    menu.classList.remove('active');
+  };
+  settingsLi.appendChild(settingsBtn);
+  menu.appendChild(settingsLi);
   
   // 組み立て
   container.appendChild(button);
@@ -1095,6 +1940,58 @@ function reorderLeftColumn(leftColumn) {
   elements.forEach(item => leftColumn.appendChild(item.elem));
 }
 
+// 複数時間割を適用する関数（「他」がある科目用）
+function applyMultipleSchedules(link, schedules, currentDayJp, currentPeriod, todaysClassElements, courseName) {
+  if (!schedules || schedules.length === 0) return;
+  
+  // 既に時間情報が追加されている場合はスキップ
+  if (link.querySelector('.course-schedule-info')) return;
+  
+  // 時間割表示を作成
+  const scheduleDisplay = formatScheduleDisplay(schedules);
+  
+  // 時間割情報要素を作成
+  const scheduleSpan = document.createElement('span');
+  scheduleSpan.className = 'course-schedule-info';
+  scheduleSpan.textContent = ` [${scheduleDisplay}]`;
+  scheduleSpan.style.cssText = 'color: #888; font-size: 0.9em; margin-left: 4px;';
+  
+  link.appendChild(scheduleSpan);
+  
+  // 今日の曜日に該当する時限があるかチェック
+  const todaySchedules = schedules.filter(s => s.day === currentDayJp);
+  if (todaySchedules.length > 0) {
+    link.parentElement.classList.add('today-class');
+    if (!todaysClassElements.includes(link)) {
+      todaysClassElements.push(link);
+    }
+    
+    // 時間情報を追加
+    const timeInfos = todaySchedules.map(s => {
+      const timeInfo = PERIOD_TIME_MAPPING[s.period];
+      return timeInfo ? `${s.period}限: ${timeInfo.start}～${timeInfo.end}` : `${s.period}限`;
+    }).join(', ');
+    
+    // 既存の時間リンクがなければ追加
+    if (!link.querySelector('.course-time-info')) {
+      const timeLink = document.createElement('a');
+      timeLink.className = 'course-time-info course-time-link';
+      timeLink.textContent = ` (${timeInfos})`;
+      timeLink.href = link.href;
+      timeLink.title = `${courseName} - ${timeInfos}`;
+      timeLink.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      link.appendChild(timeLink);
+    }
+    
+    // 現在時限に該当するかチェック
+    if (todaySchedules.some(s => s.period === currentPeriod)) {
+      link.parentElement.classList.add('current-period');
+    }
+  }
+}
+
 // 今日の授業をハイライト表示
 function highlightTodayClasses() {
   // 現在の日付と時刻を取得
@@ -1131,11 +2028,34 @@ function highlightTodayClasses() {
   const courseLinks = document.querySelectorAll('.courseList li a');
   courseLinks.forEach(link => {
     const text = link.textContent;
-    const courseInfoMatch = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
+    // 前期/後期両方に対応、「水4 他」のような「他」が付くパターンにも対応
+    const hasOther = text.includes(' 他 '); // 「他」があるかチェック
+    const courseInfoMatch = text.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d)(?: 他)? (\d{4})/);
     
     if (courseInfoMatch) {
-      const [, courseName, teacher, dayJp, period, year] = courseInfoMatch;
+      const [, courseName, teacher, semester, dayJp, period, year] = courseInfoMatch;
       
+      // 「他」がある場合は開講情報から完全な時間割を取得
+      if (hasOther) {
+        const courseId = extractCourseIdFromUrl(link.href);
+        if (courseId) {
+          // キャッシュから即座に取得を試みる
+          const cache = getCourseScheduleCache();
+          if (cache[courseId]) {
+            // キャッシュがある場合は即座に適用
+            applyMultipleSchedules(link, cache[courseId], currentDayJp, currentPeriod, todaysClassElements, courseName);
+          } else {
+            // キャッシュがない場合は非同期で取得
+            fetchCourseSchedule(courseId).then(schedules => {
+              if (schedules && schedules.length > 0) {
+                applyMultipleSchedules(link, schedules, currentDayJp, currentPeriod, todaysClassElements, courseName);
+              }
+            });
+          }
+        }
+      }
+      
+      // 通常の処理（単一時限）
       if (dayJp === currentDayJp) {
         // 今日の授業をマーク
         link.parentElement.classList.add('today-class');
@@ -1218,17 +2138,17 @@ function addTimeLegend(currentPeriod = null) {
     const jpDays = ['日', '月', '火', '水', '木', '金', '土'];
     const currentDayJp = jpDays[now.getDay()];
     
-    // 現在の曜日の授業を検索
+    // 現在の曜日の授業を検索（前期/後期両方に対応、「他」が付くパターンにも対応）
     const todaysCourses = Array.from(document.querySelectorAll('.courseList li a'))
       .filter(link => {
         const text = link.textContent;
-        const match = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
-        return match && match[3] === currentDayJp && match[4] === period;
+        const match = text.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d)(?: 他)? (\d{4})/);
+        return match && match[4] === currentDayJp && match[5] === period;
       })
       .map(link => {
         const text = link.textContent;
         // 科目名と教員名を抽出
-        const courseMatch = text.match(/(.+),(.+) 前期 ([月火水木金土日])(\d) (\d{4})/);
+        const courseMatch = text.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d)(?: 他)? (\d{4})/);
         return { 
           link: link, 
           courseName: courseMatch ? courseMatch[1].trim() : text,
@@ -1358,114 +2278,149 @@ function setupOutsideClickHandler() {
   });
 }
 
-// ログインページでの自動入力とログイン処理
+// 自動ログイン失敗カウントのキー
+const LOGIN_FAIL_COUNT_KEY = 'autoLoginFailCount';
+const MAX_LOGIN_FAILURES = 3;
+
+// ログインページでの自動入力とログイン処理（高速化版）
 function handleLoginPage() {
   const url = window.location.href;
   
   // ログインページかどうか確認
-  if (url.includes('/webclass/login.php')) {
-    console.log('WebClassログインページを検出しました');
-    
-    // DOMの読み込み完了を待つ (重要)
-    if (document.readyState !== 'complete') {
-      window.addEventListener('load', () => handleLoginForm());
-    } else {
-      handleLoginForm();
+  if (!url.includes('/webclass/login.php')) return;
+  
+  console.log('WebClassログインページを検出しました');
+  
+  // ログインページ用のスタイルを即座に適用
+  document.body.classList.add('login-page');
+  
+  // フォーム要素を早期に取得を試みる
+  const loginForm = document.querySelector('form[name="loginform"], form[action*="login.php"]');
+  
+  if (loginForm) {
+    // フォームが既に存在する場合は即座に処理
+    handleLoginForm(loginForm);
+  } else {
+    // DOMContentLoadedで再試行（loadより高速）
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form[name="loginform"], form[action*="login.php"]');
+        if (form) handleLoginForm(form);
+      }, { once: true });
     }
-    
-    // ログインページ用のスタイルを適用
-    document.body.classList.add('login-page');
   }
 }
 
-// ログインフォームの処理（分離して再利用性を高める）
-function handleLoginForm() {
-  // ログインフォームを確実に取得
-  const loginForm = document.querySelector('form[name="loginform"], form[action*="login.php"]');
-  
+// ログインフォームの処理（高速化・失敗カウント対応版）
+function handleLoginForm(loginForm) {
   if (!loginForm) {
-    console.warn('ログインフォームが見つかりません');
-    return;
+    loginForm = document.querySelector('form[name="loginform"], form[action*="login.php"]');
+    if (!loginForm) {
+      console.warn('ログインフォームが見つかりません');
+      return;
+    }
   }
   
-  console.log('ログインフォームを検出しました', loginForm);
-  
-  // ユーザーIDとパスワードのフィールドを取得
+  // フィールドを高速に取得
   const userIdField = loginForm.querySelector('input[name="username"], #userid');
   const passwordField = loginForm.querySelector('input[name="val"], #passwd');
   
   if (!userIdField || !passwordField) {
-    console.warn('ログインフィールドが見つかりません:', {
-      userIdField: !!userIdField,
-      passwordField: !!passwordField
-    });
+    console.warn('ログインフィールドが見つかりません');
     return;
   }
   
-  // ログインボタンの取得
   const loginButton = loginForm.querySelector('input[type="submit"], button[type="submit"]');
   
-  // フォーム内のすべての入力フィールドをログ出力（デバッグ用）
-  const allFormInputs = {};
-  loginForm.querySelectorAll('input').forEach(input => {
-    if (input.name) {
-      allFormInputs[input.name] = input.value;
+  // 保存されたログイン情報を取得（失敗カウントも含む）
+  chrome.storage.sync.get(['wcUsername', 'wcPassword', 'autoLogin', LOGIN_FAIL_COUNT_KEY], function(data) {
+    const failCount = data[LOGIN_FAIL_COUNT_KEY] || 0;
+    
+    // 失敗回数が上限に達している場合は自動ログインを停止
+    if (failCount >= MAX_LOGIN_FAILURES) {
+      console.warn(`自動ログインは${MAX_LOGIN_FAILURES}回失敗したため停止しています。ポップアップから再度有効にしてください。`);
+      showLoginFailureWarning(failCount);
+      return;
     }
-  });
-  console.log('フォーム内の全フィールド:', allFormInputs);
-  
-  // 保存されたログイン情報を取得
-  chrome.storage.sync.get(['wcUsername', 'wcPassword', 'autoLogin'], function(data) {
+    
     if (data.wcUsername && data.wcPassword) {
-      console.log('保存されたログイン情報を使用します');
-      
-      // ユーザーID入力
+      // ユーザーID入力（直接設定で高速化）
       userIdField.value = data.wcUsername;
+      // input イベントを発火させてフレームワークに通知
+      userIdField.dispatchEvent(new Event('input', { bubbles: true }));
       
       // パスワード入力
       passwordField.value = data.wcPassword;
+      passwordField.dispatchEvent(new Event('input', { bubbles: true }));
       
       // 自動ログインが有効な場合は処理を実行
       if (data.autoLogin) {
-        console.log('自動ログイン実行を準備しています');
+        // 失敗カウントをインクリメント（成功したらリセット）
+        chrome.storage.sync.set({ [LOGIN_FAIL_COUNT_KEY]: failCount + 1 });
         
-        // フォームの送信前に少し待機
-        setTimeout(() => {
-          try {
-            console.log('ログインフォームを送信します');
-            
-            // いくつかの方法を試行
-            if (loginButton) {
-              // 1. ログインボタンのクリックイベントをトリガー
-              console.log('ログインボタンをクリックします');
-              loginButton.click();
-            } else {
-              // 2. フォームの送信メソッドを使用
-              console.log('フォーム送信メソッドを使用します');
-              loginForm.submit();
-            }
-          } catch (error) {
-            console.error('ログイン処理中にエラーが発生しました:', error);
-            
-            // 3. バックアップ方法: カスタムイベントを作成
-            try {
-              console.log('カスタム送信イベントを試行します');
-              const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
-              loginForm.dispatchEvent(submitEvent);
-            } catch (e) {
-              console.error('すべてのログイン試行が失敗しました');
-            }
-          }
-        }, 800); // 入力完了を待つために遅延を少し長めに設定
+        // 最小限の遅延で送信（50ms）
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            executeLogin(loginForm, loginButton);
+          }, 50);
+        });
       }
     }
   });
+}
+
+// ログイン実行（分離して効率化）
+function executeLogin(loginForm, loginButton) {
+  try {
+    if (loginButton) {
+      loginButton.click();
+    } else {
+      loginForm.submit();
+    }
+  } catch (error) {
+    console.error('ログイン処理中にエラーが発生しました:', error);
+    // フォールバック
+    try {
+      loginForm.submit();
+    } catch (e) {
+      console.error('すべてのログイン試行が失敗しました');
+    }
+  }
+}
+
+// ログイン失敗警告を表示
+function showLoginFailureWarning(failCount) {
+  const warningDiv = document.createElement('div');
+  warningDiv.className = 'styleup-login-warning';
+  warningDiv.innerHTML = `
+    <div style="background: #ff5252; color: white; padding: 12px 16px; border-radius: 8px; margin: 10px; text-align: center; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+      <strong>⚠️ 自動ログインが停止しました</strong><br>
+      <span style="font-size: 12px;">連続${failCount}回失敗したため自動ログインを停止しました。<br>
+      拡張機能のポップアップから再度有効にしてください。</span>
+      <button id="reset-login-fail" style="margin-top: 8px; padding: 6px 16px; background: white; color: #ff5252; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        リセットして再試行
+      </button>
+    </div>
+  `;
   
-  // フォーム送信イベントの監視（デバッグ用）
-  loginForm.addEventListener('submit', function(e) {
-    console.log('フォーム送信イベントが検出されました');
-    // ここではイベントを停止せず、通常の送信を許可
+  const loginForm = document.querySelector('form[name="loginform"], form[action*="login.php"]');
+  if (loginForm) {
+    loginForm.parentElement.insertBefore(warningDiv, loginForm);
+  } else {
+    document.body.insertBefore(warningDiv, document.body.firstChild);
+  }
+  
+  // リセットボタンのイベント
+  document.getElementById('reset-login-fail')?.addEventListener('click', function() {
+    chrome.storage.sync.set({ [LOGIN_FAIL_COUNT_KEY]: 0 }, function() {
+      location.reload();
+    });
   });
+}
+
+// ログイン成功時に失敗カウントをリセット（ホームページで呼び出す）
+function resetLoginFailCount() {
+  chrome.storage.sync.set({ [LOGIN_FAIL_COUNT_KEY]: 0 });
 }
 
 /**
@@ -1483,6 +2438,13 @@ function initializeCustomHeader() {
   
   // ログインページの処理を最優先で実行
   handleLoginPage();
+  
+  // ホームページ等にアクセスできた場合はログイン成功とみなして失敗カウントをリセット
+  const pageType = getPageType();
+  if (pageType === 'home' || pageType === 'dashboard' || 
+      (typeof pageType === 'object' && pageType.type === 'course')) {
+    resetLoginFailCount();
+  }
   
   // リダイレクト処理を実行
   redirectToWebClass();
@@ -1688,6 +2650,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     sendResponse({ success: true });
     return true;
   }
+  
+  // 完全な設定適用（新UI用）
+  if (message.action === 'applyFullSettings') {
+    applyFullSettings(message.settings);
+    sendResponse({ success: true });
+    return true;
+  }
 });
 
 // 科目アイテムの表示を強化する関数
@@ -1725,8 +2694,10 @@ function enhanceCourseItems(courseList) {
     let period = '';
     let year = '';
     
-    // 科目情報をパース
-    const courseInfoMatch = fullText.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d) (\d{4})/);
+    // 科目情報をパース（「水4 他」のような「他」が付くパターンにも対応）
+    const courseInfoMatch = fullText.match(/(.+),(.+) (前期|後期) ([月火水木金土日])(\d)(?: 他)? (\d{4})/);
+    // 「他」が含まれているかを判定（複数時限開講の科目）
+    const hasOtherSchedule = fullText.includes(' 他 ');
     if (courseInfoMatch) {
       [, courseTitle, teacherName, semester, day, period, year] = courseInfoMatch;
     }
@@ -1791,7 +2762,15 @@ function enhanceCourseItems(courseList) {
         timeBadge.classList.add(dayMap[day]);
       }
       
-      timeBadge.textContent = `${day}${period}限`;
+      // 「他」がある場合は、後から完全なスケジュールを取得するためのマーカーを追加
+      if (hasOtherSchedule) {
+        timeBadge.textContent = `${day}${period}限 他`;
+        timeBadge.dataset.courseUrl = linkURL;
+        timeBadge.dataset.needsScheduleFetch = 'true';
+        timeBadge.classList.add('schedule-pending');
+      } else {
+        timeBadge.textContent = `${day}${period}限`;
+      }
       detailsDiv.appendChild(timeBadge);
       
       // 登録科目では時間情報を表示しない（登録科目一覧のみ）
@@ -1930,4 +2909,7 @@ function enhanceCoursesList() {
   
   // 登録科目カテゴリが最初に表示されるよう並べ替え
   reorderCourseList();
+  
+  // 「他」がマークされた時間割バッジを非同期で更新
+  updatePendingScheduleBadges();
 }

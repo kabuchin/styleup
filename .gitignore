@@ -1,0 +1,47 @@
+# Node
+node_modules/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Web page dump and temporary files
+*_files/
+*.har
+**/*.ダウンロード
+
+# Top-level HTML page dumps (keeps extension popup.html in styleup/)
+/*.html
+
+# Editor folders
+.vscode/
+
+# Common build/dist directories
+dist/
+build/
+
+# Others
+*.zip
+*.tar.gz
+
+# Ignore local environment files
+.env
+
+# macOS Finder
+.Spotlight-V100/
+.Trashes/
+
+# Windows thumbnail cache
+ehthumbs.db
+
+# Ignore JetBrains IDE files
+*.iml
+.idea/
+
+# ignore package-lock if using yarn (optional)
+package-lock.json
+
+# keep styleup folder tracked (do not ignore)

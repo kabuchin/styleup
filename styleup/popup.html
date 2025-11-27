@@ -6,337 +6,7 @@
   <title>StyleUp 設定</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #1a73e8;
-      --secondary-color: #5f6368;
-      --background-color: #ffffff;
-      --text-color: #202124;
-      --hover-color: #f1f3f4;
-      --active-color: #e8f0fe;
-      --border-color: #dadce0;
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      width: 300px;
-      margin: 0;
-      padding: 0;
-      color: var(--text-color);
-    }
-    body.theme-dark {
-      --primary-color: #8ab4f8;
-      --secondary-color: #9aa0a6;
-      --background-color: #202124;
-      --text-color: #e8eaed;
-      --hover-color: #303134;
-      --active-color: #3c4043;
-      --border-color: #5f6368;
-    }
-    .popup-header {
-      background-color: var(--background-color);
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-    }
-    .app-icon {
-        width: 24px;
-        height: 24px;
-        margin-right: 12px;
-    }
-    .popup-title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--primary-color);
-    }
-    .popup-content {
-      padding: 16px;
-      background-color: var(--background-color);
-    }
-    .section-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin-top: 0;
-      margin-bottom: 12px;
-      color: var(--secondary-color);
-    }
-    .theme-options {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-gap: 8px;
-      margin-bottom: 16px;
-    }
-    .theme-option {
-      border: 2px solid transparent;
-      border-radius: 4px;
-      padding: 4px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-    .theme-option.active {
-      border-color: var(--primary-color);
-    }
-    .theme-option:hover {
-      background-color: var(--hover-color);
-    }
-    .color-preview {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      margin: 0 auto 4px;
-    }
-    .blue-preview {
-      background-color: #1a73e8;
-    }
-    .green-preview {
-      background-color: #0f9d58;
-    }
-    .red-preview {
-      background-color: #d93025;
-    }
-    .purple-preview {
-      background-color: #673ab7;
-    }
-    .dark-preview {
-      background-color: #202124;
-      border: 1px solid #9aa0a6;
-    }
-    .theme-name {
-      font-size: 12px;
-      color: var(--text-color);
-    }
-    /* 機能設定セクション用のスタイル */
-    .settings-section {
-      margin-top: 20px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 16px;
-    }
-    /* トグルスイッチのスタイル */
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .toggle-switch label {
-      font-size: 14px;
-      color: var(--text-color);
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 22px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: var(--primary-color);
-    }
-    input:checked + .slider:before {
-      transform: translateX(18px);
-    }
-    .setting-description {
-      font-size: 12px;
-      color: var(--secondary-color);
-      margin-top: 4px;
-      margin-bottom: 12px;
-    }
-    /* フォントサイズスライダー用のスタイル */
-    .font-size-control {
-      margin-top: 15px;
-    }
-    .font-size-control-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .font-size-label {
-      font-size: 14px;
-      color: var(--text-color);
-    }
-    .font-size-value {
-      font-size: 12px;
-      color: var(--primary-color);
-      font-weight: 500;
-      min-width: 30px;
-      text-align: right;
-    }
-    .font-size-slider {
-      width: 100%;
-      margin: 10px 0;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      background: var(--border-color);
-      border-radius: 2px;
-      outline: none;
-    }
-    .font-size-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--primary-color);
-      cursor: pointer;
-      border: none;
-    }
-    .font-size-slider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--primary-color);
-      cursor: pointer;
-      border: none;
-    }
-    .font-size-slider:focus {
-      outline: none;
-    }
-    .font-size-preview {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-family: 'Roboto', sans-serif;
-      transition: font-size 0.2s;
-      text-align: center;
-    }
-    .footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border-color);
-      font-size: 12px;
-      color: var(--secondary-color);
-      text-align: center;
-      background-color: var(--background-color);
-    }
-    .footer a {
-      color: var(--primary-color);
-      text-decoration: none;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-    /* ログイン設定用のスタイル追加 */
-    .login-section {
-      margin-top: 20px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 16px;
-    }
-    
-    .form-group {
-      margin-bottom: 12px;
-    }
-    
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 4px;
-      color: var(--text-color);
-    }
-    
-    .form-group input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 14px;
-      color: var(--text-color);
-      background-color: var(--background-color);
-      transition: border-color 0.2s;
-    }
-    
-    .form-group input:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
-    
-    /* ダークモード対応 */
-    body.theme-dark .form-group input {
-      background-color: #303134;
-      color: #e8eaed;
-      border-color: #5f6368;
-    }
-    
-    .alert {
-      padding: 8px 12px;
-      margin: 10px 0;
-      border-radius: 4px;
-      font-size: 13px;
-    }
-    
-    .alert-success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
-    }
-    
-    .alert-warning {
-      background-color: #fff3e0;
-      color: #e65100;
-      border: 1px solid #ffcc80;
-    }
-    
-    body.theme-dark .alert-success {
-      background-color: #1e3a29;
-      color: #81c995;
-      border-color: #1b5e20;
-    }
-    
-    body.theme-dark .alert-warning {
-      background-color: #3e2723;
-      color: #ffcc80;
-      border-color: #e65100;
-    }
-    
-    .save-btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-    
-    .save-btn:hover {
-      background-color: #1565c0;
-    }
-    
-    body.theme-dark .save-btn:hover {
-      background-color: #5c9ef7;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="popup-header">
@@ -345,90 +15,340 @@
   </div>
 
   <div class="popup-content">
-    <h2 class="section-title">テーマカラー</h2>
-    <div class="theme-options">
-      <div class="theme-option" data-theme="default">
-        <div class="color-preview blue-preview"></div>
-        <div class="theme-name">ブルー</div>
+    <!-- タブナビゲーション -->
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="appearance">
+        <span class="material-icons">palette</span>
+        外観
+      </button>
+      <button class="tab-btn" data-tab="features">
+        <span class="material-icons">tune</span>
+        機能
+      </button>
+      <button class="tab-btn" data-tab="login">
+        <span class="material-icons">login</span>
+        ログイン
+      </button>
+    </div>
+
+    <!-- 外観タブ -->
+    <div class="tab-content active" id="tab-appearance">
+      <!-- ベーステーマ選択 -->
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">brightness_6</span>
+          ベーステーマ
+        </h2>
+        <div class="base-theme-options">
+          <div class="base-theme-option active" data-base-theme="light">
+            <span class="material-icons">light_mode</span>
+            <span>ライト</span>
+          </div>
+          <div class="base-theme-option" data-base-theme="dark">
+            <span class="material-icons">dark_mode</span>
+            <span>ダーク</span>
+          </div>
+        </div>
       </div>
-      <div class="theme-option" data-theme="theme-green">
-        <div class="color-preview green-preview"></div>
-        <div class="theme-name">グリーン</div>
+
+      <!-- カラーパレット -->
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">color_lens</span>
+          カラーパレット
+        </h2>
+        
+        <!-- プリセットカラー -->
+        <div class="preset-colors">
+          <h3 class="subsection-title">プリセット</h3>
+          <div class="color-presets">
+            <div class="color-preset active" data-preset="blue" title="ブルー">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #1a73e8 50%, #4285f4 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="green" title="グリーン">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #0f9d58 50%, #34a853 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="red" title="レッド">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #d93025 50%, #ea4335 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="purple" title="パープル">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #673ab7 50%, #9c27b0 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="orange" title="オレンジ">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #f57c00 50%, #ff9800 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="teal" title="ティール">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #00796b 50%, #009688 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="pink" title="ピンク">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #c2185b 50%, #e91e63 50%)"></div>
+            </div>
+            <div class="color-preset" data-preset="indigo" title="インディゴ">
+              <div class="preset-swatch" style="background: linear-gradient(135deg, #303f9f 50%, #3f51b5 50%)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- カスタムカラー選択 -->
+        <div class="custom-colors">
+          <h3 class="subsection-title">カスタムカラー</h3>
+          <div class="color-pickers">
+            <div class="color-picker-group">
+              <label>メイン</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="main-color" value="#1a73e8">
+                <span class="color-value" id="main-color-value">#1a73e8</span>
+              </div>
+            </div>
+            <div class="color-picker-group">
+              <label>サブ</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="sub-color" value="#4285f4">
+                <span class="color-value" id="sub-color-value">#4285f4</span>
+              </div>
+            </div>
+            <div class="color-picker-group">
+              <label>アクセント</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="accent-color" value="#fbbc04">
+                <span class="color-value" id="accent-color-value">#fbbc04</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- カラープレビュー -->
+        <div class="color-preview-section">
+          <h3 class="subsection-title">プレビュー</h3>
+          <div class="color-preview-card" id="color-preview">
+            <div class="preview-header">ヘッダー</div>
+            <div class="preview-content">
+              <div class="preview-button">ボタン</div>
+              <div class="preview-badge">バッジ</div>
+              <div class="preview-link">リンク</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="theme-option" data-theme="theme-red">
-        <div class="color-preview red-preview"></div>
-        <div class="theme-name">レッド</div>
-      </div>
-      <div class="theme-option" data-theme="theme-purple">
-        <div class="color-preview purple-preview"></div>
-        <div class="theme-name">パープル</div>
-      </div>
-      <div class="theme-option" data-theme="theme-dark">
-        <div class="color-preview dark-preview"></div>
-        <div class="theme-name">ダーク</div>
+
+      <!-- 曜日タグスタイル -->
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">calendar_today</span>
+          曜日タグスタイル
+        </h2>
+        <div class="day-tag-styles">
+          <div class="day-style-option active" data-style="colorful">
+            <div class="style-preview colorful-preview">
+              <span class="day-sample mon">月</span>
+              <span class="day-sample wed">水</span>
+              <span class="day-sample fri">金</span>
+            </div>
+            <span class="style-name">カラフル</span>
+          </div>
+          <div class="day-style-option" data-style="monotone">
+            <div class="style-preview monotone-preview">
+              <span class="day-sample">月</span>
+              <span class="day-sample">水</span>
+              <span class="day-sample">金</span>
+            </div>
+            <span class="style-name">モノトーン</span>
+          </div>
+          <div class="day-style-option" data-style="single">
+            <div class="style-preview single-preview">
+              <span class="day-sample">月</span>
+              <span class="day-sample">水</span>
+              <span class="day-sample">金</span>
+            </div>
+            <span class="style-name">単色</span>
+          </div>
+          <div class="day-style-option" data-style="gradient">
+            <div class="style-preview gradient-preview">
+              <span class="day-sample">月</span>
+              <span class="day-sample">水</span>
+              <span class="day-sample">金</span>
+            </div>
+            <span class="style-name">グラデ</span>
+          </div>
+          <div class="day-style-option" data-style="outline">
+            <div class="style-preview outline-preview">
+              <span class="day-sample">月</span>
+              <span class="day-sample">水</span>
+              <span class="day-sample">金</span>
+            </div>
+            <span class="style-name">アウトライン</span>
+          </div>
+        </div>
+        
+        <!-- カスタム曜日カラー -->
+        <div class="custom-day-colors" id="custom-day-colors">
+          <h3 class="subsection-title">曜日別カラー</h3>
+          <div class="day-color-grid">
+            <div class="day-color-item">
+              <label>月</label>
+              <input type="color" id="day-color-mon" value="#ef5350">
+            </div>
+            <div class="day-color-item">
+              <label>火</label>
+              <input type="color" id="day-color-tue" value="#ff9800">
+            </div>
+            <div class="day-color-item">
+              <label>水</label>
+              <input type="color" id="day-color-wed" value="#4caf50">
+            </div>
+            <div class="day-color-item">
+              <label>木</label>
+              <input type="color" id="day-color-thu" value="#2196f3">
+            </div>
+            <div class="day-color-item">
+              <label>金</label>
+              <input type="color" id="day-color-fri" value="#9c27b0">
+            </div>
+            <div class="day-color-item">
+              <label>土</label>
+              <input type="color" id="day-color-sat" value="#00bcd4">
+            </div>
+            <div class="day-color-item">
+              <label>日</label>
+              <input type="color" id="day-color-sun" value="#ff5722">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 機能設定セクション -->
-    <div class="settings-section">
-      <h2 class="section-title">機能設定</h2>
-      
-      <div class="toggle-switch">
-        <label for="auto-scroll">現在の授業へ自動スクロール</label>
-        <label class="switch">
-          <input type="checkbox" id="auto-scroll" checked>
-          <span class="slider"></span>
-        </label>
+    <!-- 機能タブ -->
+    <div class="tab-content" id="tab-features">
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">settings</span>
+          表示設定
+        </h2>
+        
+        <div class="toggle-switch">
+          <div class="toggle-label">
+            <span class="material-icons">my_location</span>
+            <label for="auto-scroll">現在の授業へ自動スクロール</label>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="auto-scroll" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="setting-description">今日の授業が時間割にある場合、自動的にその位置までスクロールします。</p>
+        
+        <!-- 科目名フォントサイズ設定 -->
+        <div class="font-size-control">
+          <div class="font-size-control-header">
+            <div class="font-size-label">
+              <span class="material-icons">text_fields</span>
+              科目名のフォントサイズ
+            </div>
+            <div class="font-size-value"><span id="font-size-display">14</span>px</div>
+          </div>
+          <input type="range" class="font-size-slider" id="course-font-size" min="12" max="20" step="1" value="14">
+          <div class="font-size-preview" id="course-font-preview">
+            システム工学専門科目,教授名 前期 月3 2025
+          </div>
+        </div>
       </div>
-      <p class="setting-description">今日の授業が時間割にある場合、自動的にその位置までスクロールします。</p>
-      
-      <!-- 科目名フォントサイズ設定 -->
-      <div class="font-size-control">
-        <div class="font-size-control-header">
-          <div class="font-size-label">科目名のフォントサイズ</div>
-          <div class="font-size-value"><span id="font-size-display">14</span>px</div>
+
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">visibility</span>
+          UI設定
+        </h2>
+        
+        <div class="toggle-switch">
+          <div class="toggle-label">
+            <span class="material-icons">animation</span>
+            <label for="enable-animations">アニメーション効果</label>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="enable-animations" checked>
+            <span class="slider"></span>
+          </label>
         </div>
-        <input type="range" class="font-size-slider" id="course-font-size" min="12" max="20" step="1" value="14">
-        <div class="font-size-preview" id="course-font-preview">
-          システム工学専門科目,教授名 前期 月3 2025
+        <p class="setting-description">ホバーやトランジションなどのアニメーション効果を有効にします。</p>
+        
+        <div class="toggle-switch">
+          <div class="toggle-label">
+            <span class="material-icons">blur_on</span>
+            <label for="enable-blur">ぼかし効果</label>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="enable-blur" checked>
+            <span class="slider"></span>
+          </label>
         </div>
+        <p class="setting-description">背景のぼかし効果を有効にします。</p>
       </div>
     </div>
-    
-    <!-- ログイン設定セクション -->
-    <div class="login-section">
-      <h2 class="section-title">自動ログイン</h2>
-      <div class="form-group">
-        <label for="username">ユーザーID</label>
-        <input type="text" id="username" placeholder="ユーザーIDを入力">
-      </div>
-      <div class="form-group">
-        <label for="password">パスワード</label>
-        <input type="password" id="password" placeholder="パスワードを入力">
-      </div>
-      <div class="toggle-switch">
-        <label for="auto-login">自動ログインを有効にする</label>
-        <label class="switch">
-          <input type="checkbox" id="auto-login">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <p class="setting-description">
-        WebClassログインページで自動的に入力し、ログインを実行します。<br>
-        有効にすると、ログインページに遷移した際に自動でログインします。
-      </p>
-      <div class="alert alert-warning" id="security-warning">
-        <strong>注意:</strong> パスワードはブラウザ内に保存されます。共有PCやパブリックな環境での使用は避けてください。
-      </div>
-      <button class="save-btn" id="save-login">ログイン情報を保存</button>
-      <div class="alert alert-success" id="save-status" style="display: none;">
-        ログイン情報を保存しました
+
+    <!-- ログインタブ -->
+    <div class="tab-content" id="tab-login">
+      <div class="setting-group">
+        <h2 class="section-title">
+          <span class="material-icons">lock</span>
+          自動ログイン
+        </h2>
+        
+        <div class="form-group">
+          <label for="username">
+            <span class="material-icons">person</span>
+            ユーザーID
+          </label>
+          <input type="text" id="username" placeholder="ユーザーIDを入力">
+        </div>
+        <div class="form-group">
+          <label for="password">
+            <span class="material-icons">key</span>
+            パスワード
+          </label>
+          <input type="password" id="password" placeholder="パスワードを入力">
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-label">
+            <span class="material-icons">flash_on</span>
+            <label for="auto-login">自動ログインを有効にする</label>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="auto-login">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p class="setting-description">
+          WebClassログインページで自動的に入力し、ログインを実行します。
+        </p>
+        
+        <div class="alert alert-warning" id="security-warning">
+          <span class="material-icons">warning</span>
+          <div>
+            <strong>注意:</strong> パスワードはブラウザ内に保存されます。<br>
+            共有PCやパブリックな環境での使用は避けてください。
+          </div>
+        </div>
+        
+        <button class="save-btn" id="save-login">
+          <span class="material-icons">save</span>
+          ログイン情報を保存
+        </button>
+        
+        <div class="alert alert-success" id="save-status" style="display: none;">
+          <span class="material-icons">check_circle</span>
+          ログイン情報を保存しました
+        </div>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    StyleUp for WebClass by <a href="https://github.com/kabuchin/" target="_blank">kabuchin</a>
+    <span>StyleUp for WebClass v1.1</span>
+    <a href="https://github.com/kabuchin/" target="_blank">
+      <span class="material-icons">open_in_new</span>
+      GitHub
+    </a>
   </div>
 
   <script src="popup.js"></script>

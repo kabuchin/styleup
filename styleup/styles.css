@@ -88,6 +88,23 @@ body.theme-dark {
   color: #e8eaed !important;
 }
 
+/* アニメーション無効化 */
+body.no-animations,
+body.no-animations *,
+body.no-animations *::before,
+body.no-animations *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ぼかし効果無効化 */
+body.no-blur .dropdown-content,
+body.no-blur .notification-dropdown,
+body.no-blur .modal-content {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* ダークモード時のスタイル調整 */
 body.theme-dark .custom-header {
   background-color: #202124;
@@ -558,6 +575,307 @@ body.theme-dark .header-dropdown-menu button {
 body.theme-dark .header-dropdown-menu a:hover,
 body.theme-dark .header-dropdown-menu button:hover {
   background-color: #3c4043;
+}
+
+/* テーマスイッチャー新UI */
+.quick-theme-section {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.quick-theme-section:last-child {
+  border-bottom: none;
+}
+
+.theme-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+
+.theme-mode-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-quick-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--surface-color);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.theme-quick-toggle:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-color);
+}
+
+.theme-quick-toggle.active {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.theme-quick-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.color-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.color-preset-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-preset-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.color-preset-btn.active {
+  border-color: white;
+  box-shadow: 0 0 0 2px var(--primary-color), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.color-preset-btn.active::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.open-popup-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--surface-color);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.open-popup-link:hover {
+  background: var(--hover-color);
+  border-style: solid;
+  border-color: var(--primary-color);
+}
+
+.open-popup-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ダークモードでのテーマスイッチャー */
+body.theme-dark .quick-theme-section {
+  border-color: #5f6368;
+}
+
+body.theme-dark .theme-quick-toggle {
+  background: #3c4043;
+  border-color: #5f6368;
+  color: #e8eaed;
+}
+
+body.theme-dark .theme-quick-toggle:hover {
+  background: #4a4d51;
+}
+
+body.theme-dark .theme-quick-toggle.active {
+  border-color: var(--primary-color);
+}
+
+body.theme-dark .color-preset-btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark .open-popup-link {
+  background: #3c4043;
+  border-color: #5f6368;
+  color: var(--primary-color);
+}
+
+body.theme-dark .open-popup-link:hover {
+  background: #4a4d51;
+}
+
+/* テーマメニュー詳細スタイル */
+.theme-menu {
+  min-width: 280px !important;
+  padding: 0 !important;
+}
+
+.theme-toggle-item {
+  padding: 12px !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-color);
+}
+
+.theme-toggle-btn .material-icons {
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+.menu-separator {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0;
+  padding: 0 !important;
+}
+
+.quick-colors-item {
+  padding: 12px !important;
+}
+
+.quick-colors-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.quick-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.quick-color-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quick-color-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.settings-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 24px);
+  margin: 12px;
+  padding: 10px 14px;
+  background: var(--surface-color);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-link-btn:hover {
+  background: var(--hover-color);
+  border-style: solid;
+  border-color: var(--primary-color);
+}
+
+.settings-link-btn .material-icons {
+  font-size: 18px;
+}
+
+/* ダークモードでのテーマメニュー */
+body.theme-dark .theme-toggle-item {
+  border-color: #5f6368;
+}
+
+body.theme-dark .theme-toggle-btn {
+  background: #3c4043;
+  border-color: #5f6368;
+  color: #e8eaed;
+}
+
+body.theme-dark .theme-toggle-btn:hover {
+  background: #4a4d51;
+}
+
+body.theme-dark .menu-separator {
+  background: #5f6368;
+}
+
+body.theme-dark .quick-color-btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark .settings-link-btn {
+  background: #3c4043;
+  border-color: #5f6368;
+}
+
+body.theme-dark .settings-link-btn:hover {
+  background: #4a4d51;
 }
 
 /* メインナビゲーション */
@@ -1893,6 +2211,24 @@ body.theme-dark[class] button {
   display: inline-block;
 }
 
+/* 複数時限のバッジスタイル */
+.enhanced-course-list .registered-course .course-time-badge.multiple-periods {
+  padding: 4px 12px;
+  background: linear-gradient(135deg, var(--primary-color), #4CAF50) !important;
+  color: white !important;
+}
+
+/* スケジュール取得中のバッジスタイル */
+.enhanced-course-list .registered-course .course-time-badge.schedule-pending {
+  opacity: 0.85;
+  animation: pulse-badge 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.6; }
+}
+
 /* 登録科目のカード全体のスタイル強化 */
 .enhanced-course-list .registered-course {
   padding: 8px !important;
@@ -2207,3 +2543,289 @@ a.ui-btn {
   color: var(--text-color) !important;
   text-shadow: none !important;
 }
+
+/* ============================================
+   メッセージページ（msg_viewer.php, msg_editor.php）のダークモード対応
+   ============================================ */
+
+/* メッセージページ全体の背景 */
+body.theme-dark {
+  background-color: #202124 !important;
+}
+
+/* ページタイトル（h1.pkgtitle）*/
+body.theme-dark h1.pkgtitle {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* サイドナビゲーション (.navi) */
+body.theme-dark .navi {
+  background-color: #303134 !important;
+}
+
+body.theme-dark .navi dl {
+  background-color: #303134 !important;
+}
+
+body.theme-dark .navi dt {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .navi dt.bgc_main {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .navi dd {
+  background-color: #303134 !important;
+}
+
+body.theme-dark .navi dd a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark .navi dd.active {
+  background-color: #4b5053 !important;
+}
+
+body.theme-dark .navi dd.active a {
+  color: #e8eaed !important;
+}
+
+/* コンテンツエリア (.content) */
+body.theme-dark .content {
+  background-color: #202124 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark .content h3 {
+  color: #e8eaed !important;
+}
+
+/* メッセージデータテーブル (#MessageData) */
+body.theme-dark #MessageData {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MessageData th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MessageData td {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MessageData thead th,
+body.theme-dark #MessageData thead td {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark #MessageData tbody th {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark #MessageData .messageHead {
+  background-color: #4b5053 !important;
+}
+
+body.theme-dark #MessageData .messageBody,
+body.theme-dark #MessageData .MessageBody {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark #MessageData .messageFoot {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #MessageData a {
+  color: #8ab4f8 !important;
+}
+
+/* メッセージリストテーブル (#MsgListTable, #MsgBox) */
+body.theme-dark #MsgBox {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #MsgBox > tbody > tr > td[bgcolor] {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #MsgListTable {
+  background-color: #303134 !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MsgListTable thead {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark #MsgListTable thead tr {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark #MsgListTable thead th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MsgListTable thead td {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark #MsgListTable tbody tr.odd {
+  background-color: #303134 !important;
+}
+
+body.theme-dark #MsgListTable tbody tr.eve {
+  background-color: #3c4043 !important;
+}
+
+body.theme-dark #MsgListTable tbody td {
+  background-color: inherit !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark #MsgListTable a {
+  color: #8ab4f8 !important;
+}
+
+/* .dimgray クラス（メッセージ一覧のテキスト） */
+body.theme-dark .dimgray,
+body.theme-dark span.dimgray {
+  color: #e8eaed !important;
+}
+
+body.theme-dark .dimgray a {
+  color: #8ab4f8 !important;
+}
+
+/* 上部ナビリンク (.uppernavi) */
+body.theme-dark .uppernavi,
+body.theme-dark a.uppernavi {
+  color: #8ab4f8 !important;
+  background-color: #202124 !important;
+}
+
+/* フォーム要素 */
+body.theme-dark input[type="text"],
+body.theme-dark input[type="email"],
+body.theme-dark input[type="password"],
+body.theme-dark textarea,
+body.theme-dark select {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark input[type="submit"],
+body.theme-dark input[type="button"],
+body.theme-dark button {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark input[type="submit"]:hover,
+body.theme-dark input[type="button"]:hover,
+body.theme-dark button:hover {
+  background-color: #4b5053 !important;
+}
+
+/* ページャー (.pager) */
+body.theme-dark ol.pager li,
+body.theme-dark ol.iterator li {
+  color: #9aa0a6 !important;
+}
+
+body.theme-dark ol.pager li a,
+body.theme-dark ol.iterator li a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark ol.pager li span {
+  color: #9aa0a6 !important;
+}
+
+/* fontタグ対応（レガシー） */
+body.theme-dark font {
+  color: #e8eaed !important;
+}
+
+body.theme-dark font[color="red"] {
+  color: #f28b82 !important;
+}
+
+/* bgc_main クラスのオーバーライド */
+body.theme-dark .bgc_main {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+/* テーブル一般 */
+body.theme-dark table {
+  border-color: #5f6368 !important;
+}
+
+body.theme-dark th {
+  background-color: #3c4043 !important;
+  color: #e8eaed !important;
+}
+
+body.theme-dark td {
+  color: #e8eaed !important;
+}
+
+/* 転送フォームのスタイル */
+body.theme-dark #FowardAddressInBox {
+  background-color: #303134 !important;
+  color: #e8eaed !important;
+  border-color: #5f6368 !important;
+}
+
+/* インライン背景色のオーバーライド */
+body.theme-dark [bgcolor="#EEEEEE"],
+body.theme-dark [bgcolor="#eeeeee"],
+body.theme-dark [style*="background-color:#eeeeee"],
+body.theme-dark [style*="background-color: #eeeeee"],
+body.theme-dark [style*="background-color:#EEEEEE"],
+body.theme-dark [style*="background-color: #EEEEEE"] {
+  background-color: #303134 !important;
+}
+
+body.theme-dark [style*="color: #333333"],
+body.theme-dark [style*="color:#333333"] {
+  color: #e8eaed !important;
+}
+
+/* チェックボックス */
+body.theme-dark input[type="checkbox"] {
+  accent-color: #8ab4f8;
+}
+
+/* リンク全般 */
+body.theme-dark a {
+  color: #8ab4f8 !important;
+}
+
+body.theme-dark a:hover {
+  color: #aecbfa !important;
+}
+
+/* hr要素 */
+body.theme-dark hr {
+  border-color: #5f6368 !important;
+}
+
