@@ -416,6 +416,10 @@ function loadFonts() {
 /**
  * テーマ管理機能
  */
+// デバウンス用の変数
+let themeDebounceTimer = null;
+const THEME_DEBOUNCE_DELAY = 500; // 500ms待ってから保存
+
 // テーマを設定する関数
 function setTheme(themeId) {
   // 現在のテーマクラスをすべて削除
@@ -435,10 +439,21 @@ function setTheme(themeId) {
     // ローカルストレージが使えない場合は無視
   }
   
-  // テーマIDをChromeストレージに保存
-  chrome.storage.sync.set({ 'selectedTheme': themeId }, function() {
-    console.log('Theme saved: ' + themeId);
-  });
+  // テーマIDをChromeストレージに保存（デバウンス処理）
+  // MAX_WRITE_OPERATIONS_PER_MINUTE エラーを防ぐ
+  if (themeDebounceTimer) {
+    clearTimeout(themeDebounceTimer);
+  }
+  
+  themeDebounceTimer = setTimeout(() => {
+    chrome.storage.sync.set({ 'selectedTheme': themeId }, function() {
+      if (chrome.runtime.lastError) {
+        console.error('Theme save error:', chrome.runtime.lastError.message);
+      } else {
+        console.log('Theme saved: ' + themeId);
+      }
+    });
+  }, THEME_DEBOUNCE_DELAY);
   
   // iframe内のコンテンツにもテーマを適用
   applyThemeToFrames();

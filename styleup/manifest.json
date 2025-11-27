@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "StyleUp for WebClass",
-  "version": "1.0",
+  "version": "1.1",
   "description": "WebClassのインターフェースを改善し、より使いやすくするための拡張機能",
   "icons": {
     "48": "icons/icon-48.png",
