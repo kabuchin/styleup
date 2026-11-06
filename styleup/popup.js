@@ -331,25 +331,49 @@ function setupFontSizeSlider() {
 function setupLoginSettings() {
   const saveButton = document.getElementById('save-login');
   const saveStatus = document.getElementById('save-status');
+  const saveError = document.getElementById('save-error');
+  let saveStatusTimer = null;
   
   saveButton.addEventListener('click', function() {
+    if (saveButton.disabled) return;
+
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     const autoLogin = document.getElementById('auto-login').checked;
-    
-    chrome.storage.sync.set({
-      wcUsername: username,
-      wcPassword: password,
-      autoLogin: autoLogin,
-      autoLoginFailCount: 0
-    }, function() {
+
+    saveButton.disabled = true;
+    saveStatus.style.display = 'none';
+    saveError.style.display = 'none';
+    clearTimeout(saveStatusTimer);
+
+    function finishSave(failed) {
+      saveButton.disabled = false;
+      if (failed) {
+        saveError.style.display = 'flex';
+        return;
+      }
+
       saveStatus.style.display = 'flex';
       updateLoginFailCountDisplay(0);
-      
-      setTimeout(function() {
+      saveStatusTimer = setTimeout(function() {
         saveStatus.style.display = 'none';
       }, 3000);
-    });
+    }
+
+    try {
+      chrome.storage.sync.set({
+        wcUsername: username,
+        wcPassword: password,
+        autoLogin: autoLogin,
+        autoLoginFailCount: 0
+      }, function() {
+        // lastErrorはコールバック内で読み取り、保存失敗を成功表示しない
+        finishSave(Boolean(chrome.runtime.lastError));
+      });
+    } catch (error) {
+      // 同期例外でも入力値を保持し、利用者が再試行できるようにする
+      finishSave(true);
+    }
   });
 }
 
