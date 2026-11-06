@@ -438,7 +438,12 @@ function applyToWebClass() {
   }
   
   applyDebounceTimer = setTimeout(() => {
-    chrome.storage.sync.get(null, function(settings) {
+    // 見た目設定の適用時に、資格情報などの無関係な保存値を読み出さない。
+    chrome.storage.sync.get([
+      'selectedTheme', 'baseTheme', 'colorPreset',
+      'mainColor', 'subColor', 'accentColor', 'dayTagStyle', 'dayColors',
+      'autoScroll', 'enableAnimations', 'enableBlur', 'courseFontSize'
+    ], function(settings) {
       // 旧形式との互換性のためにselectedThemeも設定
       let selectedTheme = 'default';
       if (settings.baseTheme === 'dark') {
