@@ -390,9 +390,18 @@ function setActiveOption(parentSelector, activeSelector) {
   if (activeEl) activeEl.classList.add('active');
 }
 
+// ポップアップで変更した見た目設定は、保存待ち・保存中も適用に使用する。
+const APPEARANCE_KEYS = [
+  'selectedTheme', 'baseTheme', 'colorPreset',
+  'mainColor', 'subColor', 'accentColor', 'dayTagStyle', 'dayColors',
+  'autoScroll', 'enableAnimations', 'enableBlur', 'courseFontSize'
+];
+const localAppearanceSettings = {};
+
 // デバウンス用の変数
 let pendingSettings = {};
 let saveDebounceTimer = null;
+let saveInProgress = false;
 const SAVE_DEBOUNCE_DELAY = 500; // 500ms待ってから保存
 
 /**
@@ -401,6 +410,11 @@ const SAVE_DEBOUNCE_DELAY = 500; // 500ms待ってから保存
  * 複数の設定変更をまとめて保存する
  */
 function saveSettings(settings) {
+  APPEARANCE_KEYS.forEach(key => {
+    if (Object.prototype.hasOwnProperty.call(settings, key)) {
+      localAppearanceSettings[key] = settings[key];
+    }
+  });
   // 保留中の設定にマージ
   pendingSettings = { ...pendingSettings, ...settings };
   
@@ -411,70 +425,95 @@ function saveSettings(settings) {
   
   // 新しいタイマーを設定
   saveDebounceTimer = setTimeout(() => {
-    if (Object.keys(pendingSettings).length > 0) {
-      chrome.storage.sync.set(pendingSettings, () => {
-        if (chrome.runtime.lastError) {
-          console.error('設定保存エラー:', chrome.runtime.lastError.message);
-        } else {
-          console.log('設定を保存しました:', Object.keys(pendingSettings));
-        }
-      });
-      pendingSettings = {};
-    }
+    saveDebounceTimer = null;
+    flushPendingSettings();
   }, SAVE_DEBOUNCE_DELAY);
+}
+
+// 書き込みを直列化し、遅い古い保存が新しい設定を上書きしないようにする。
+function flushPendingSettings() {
+  if (saveInProgress || Object.keys(pendingSettings).length === 0) return;
+  const settingsToSave = pendingSettings;
+  pendingSettings = {};
+  saveInProgress = true;
+
+  const finishSave = failed => {
+    saveInProgress = false;
+    if (failed) {
+      console.error('設定保存エラー');
+    } else {
+      console.log('設定を保存しました');
+    }
+    // 新しい編集の待ち時間が終了していれば保存する。失敗した保存は再試行しない。
+    if (!saveDebounceTimer) flushPendingSettings();
+  };
+  try {
+    chrome.storage.sync.set(settingsToSave, () => finishSave(!!chrome.runtime.lastError));
+  } catch (_) {
+    finishSave(true);
+  }
 }
 
 // applyToWebClass用のデバウンス変数
 let applyDebounceTimer = null;
+let latestApplyRequest = 0;
 const APPLY_DEBOUNCE_DELAY = 300; // 300ms待ってから適用
 
 /**
  * WebClassタブに設定を適用（デバウンス処理）
  */
 function applyToWebClass() {
+  const request = ++latestApplyRequest;
   // 既存のタイマーをクリア
   if (applyDebounceTimer) {
     clearTimeout(applyDebounceTimer);
   }
   
   applyDebounceTimer = setTimeout(() => {
-    // 見た目設定の適用時に、資格情報などの無関係な保存値を読み出さない。
-    chrome.storage.sync.get([
-      'selectedTheme', 'baseTheme', 'colorPreset',
-      'mainColor', 'subColor', 'accentColor', 'dayTagStyle', 'dayColors',
-      'autoScroll', 'enableAnimations', 'enableBlur', 'courseFontSize'
-    ], function(settings) {
-      // 旧形式との互換性のためにselectedThemeも設定
-      let selectedTheme = 'default';
-      if (settings.baseTheme === 'dark') {
-        selectedTheme = 'theme-dark';
-      } else if (settings.colorPreset === 'green') {
-        selectedTheme = 'theme-green';
-      } else if (settings.colorPreset === 'red') {
-        selectedTheme = 'theme-red';
-      } else if (settings.colorPreset === 'purple') {
-        selectedTheme = 'theme-purple';
-      }
-      
-      // selectedThemeをpendingSettingsに追加（saveSettingsのデバウンスを利用）
-      saveSettings({ selectedTheme });
-      
-      chrome.tabs.query({ url: "*://ed24lb.osaka-sandai.ac.jp/*" }, function(tabs) {
-        tabs.forEach(tab => {
-          chrome.tabs.sendMessage(tab.id, {
-            action: 'applyFullSettings',
-            settings: {
-              ...settings,
-              selectedTheme
-            }
-          }, () => {
-            // エラー無視
-            if (chrome.runtime.lastError) {
-              // タブが閉じられている場合などのエラーを無視
-            }
-          });
+    applyDebounceTimer = null;
+    // 見た目設定だけを読み、同じキーのローカル編集を優先する。
+    try {
+      chrome.storage.sync.get(APPEARANCE_KEYS, function(storedSettings) {
+        if (chrome.runtime.lastError || request !== latestApplyRequest) return;
+        const settings = {};
+        APPEARANCE_KEYS.forEach(key => {
+          if (Object.prototype.hasOwnProperty.call(localAppearanceSettings, key)) {
+            settings[key] = localAppearanceSettings[key];
+          } else if (Object.prototype.hasOwnProperty.call(storedSettings, key)) {
+            settings[key] = storedSettings[key];
+          }
         });
+
+        // 旧形式との互換性のためにselectedThemeも設定
+        let selectedTheme = 'default';
+        if (settings.baseTheme === 'dark') {
+          selectedTheme = 'theme-dark';
+        } else if (settings.colorPreset === 'green') {
+          selectedTheme = 'theme-green';
+        } else if (settings.colorPreset === 'red') {
+          selectedTheme = 'theme-red';
+        } else if (settings.colorPreset === 'purple') {
+          selectedTheme = 'theme-purple';
+        }
+        saveSettings({ selectedTheme });
+        settings.selectedTheme = selectedTheme;
+
+        try {
+          chrome.tabs.query({ url: "*://ed24lb.osaka-sandai.ac.jp/*" }, function(tabs) {
+            if (chrome.runtime.lastError || request !== latestApplyRequest) return;
+            tabs.forEach(tab => {
+              try {
+                chrome.tabs.sendMessage(tab.id, {
+                  action: 'applyFullSettings', settings
+                }, () => {
+                  // タブが閉じられている場合などのエラーを無視
+                  void chrome.runtime.lastError;
+                });
+              } catch (_) { /* タブが閉じられた場合などは次のタブへ進む */ }
+            });
+          });
+        } catch (_) { /* ポップアップやタブが閉じられた場合は適用を中止 */ }
       });
-    });
+    } catch (_) { /* ストレージを読み出せない場合は適用を中止 */ }
   }, APPLY_DEBOUNCE_DELAY);
 }
