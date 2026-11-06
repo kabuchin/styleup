@@ -2296,13 +2296,34 @@ function setupOutsideClickHandler() {
 // 自動ログイン失敗カウントのキー
 const LOGIN_FAIL_COUNT_KEY = 'autoLoginFailCount';
 const MAX_LOGIN_FAILURES = 3;
+const LOGIN_ORIGIN = 'https://ed24lb.osaka-sandai.ac.jp';
+
+// DOMの解決済みURLを検証し、HTTP・外部送信先への自動入力を防ぐ
+function isTrustedLoginUrl(value, requireLoginPage = false) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.origin === LOGIN_ORIGIN && !url.username && !url.password &&
+      (!requireLoginPage || url.pathname === '/webclass/login.php');
+  } catch (e) {
+    return false;
+  }
+}
+
+function isTrustedLoginTarget(loginForm, loginButton) {
+  if (!isTrustedLoginUrl(window.location.href, true) ||
+      !loginForm || !loginForm.isConnected || !isTrustedLoginUrl(loginForm.action)) {
+    return false;
+  }
+
+  // click失敗時にはform.submitを使うため、両方の送信先を検証する
+  return !loginButton || (loginButton.isConnected && loginButton.form === loginForm &&
+    (!loginButton.hasAttribute('formaction') || isTrustedLoginUrl(loginButton.formAction)));
+}
 
 // ログインページでの自動入力とログイン処理（高速化版）
 function handleLoginPage() {
-  const url = window.location.href;
-  
-  // ログインページかどうか確認
-  if (!url.includes('/webclass/login.php')) return;
+  // クエリやフラグメントではなく、HTTPSの正規ログインページだけを対象にする
+  if (!isTrustedLoginUrl(window.location.href, true)) return;
   
   console.log('WebClassログインページを検出しました');
   
@@ -2346,9 +2367,17 @@ function handleLoginForm(loginForm) {
   }
   
   const loginButton = loginForm.querySelector('input[type="submit"], button[type="submit"]');
-  
+  const canFillLoginForm = () => isTrustedLoginTarget(loginForm, loginButton) &&
+    userIdField.isConnected && passwordField.isConnected &&
+    userIdField.form === loginForm && passwordField.form === loginForm;
+
+  if (!canFillLoginForm()) return;
+
   // 保存されたログイン情報を取得（失敗カウントも含む）
   chrome.storage.sync.get(['wcUsername', 'wcPassword', 'autoLogin', LOGIN_FAIL_COUNT_KEY], function(data) {
+    // ストレージ読み込み中にページやフォームの送信先が変わる場合がある
+    if (chrome.runtime.lastError || !data || !canFillLoginForm()) return;
+
     const failCount = data[LOGIN_FAIL_COUNT_KEY] || 0;
     
     // 失敗回数が上限に達している場合は自動ログインを停止
@@ -2364,12 +2393,15 @@ function handleLoginForm(loginForm) {
       // input イベントを発火させてフレームワークに通知
       userIdField.dispatchEvent(new Event('input', { bubbles: true }));
       
+      // inputイベントで送信先が変更されていないことも確認
+      if (!canFillLoginForm()) return;
+
       // パスワード入力
       passwordField.value = data.wcPassword;
       passwordField.dispatchEvent(new Event('input', { bubbles: true }));
       
       // 自動ログインが有効な場合は処理を実行
-      if (data.autoLogin) {
+      if (data.autoLogin && canFillLoginForm()) {
         // 失敗カウントをインクリメント（成功したらリセット）
         chrome.storage.sync.set({ [LOGIN_FAIL_COUNT_KEY]: failCount + 1 });
         
@@ -2386,6 +2418,8 @@ function handleLoginForm(loginForm) {
 
 // ログイン実行（分離して効率化）
 function executeLogin(loginForm, loginButton) {
+  if (!isTrustedLoginTarget(loginForm, loginButton)) return;
+
   try {
     if (loginButton) {
       loginButton.click();
@@ -2394,7 +2428,9 @@ function executeLogin(loginForm, loginButton) {
     }
   } catch (error) {
     console.error('ログイン処理中にエラーが発生しました:', error);
-    // フォールバック
+    // click中に送信先が変更された場合はフォールバックしない
+    if (!isTrustedLoginTarget(loginForm, loginButton)) return;
+
     try {
       loginForm.submit();
     } catch (e) {
