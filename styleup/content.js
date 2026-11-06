@@ -8,7 +8,16 @@
 // ========================================
 (function applyThemeImmediately() {
   // ローカルストレージからテーマをキャッシュとして読み込み（高速）
-  const cachedTheme = localStorage.getItem('styleup-theme-cache');
+  let cachedTheme = null;
+  try {
+    const storedTheme = localStorage.getItem('styleup-theme-cache');
+    // ページ側のキャッシュは信頼せず、対応するテーマ名だけを使う。
+    if (['theme-dark', 'theme-green', 'theme-red', 'theme-purple'].includes(storedTheme)) {
+      cachedTheme = storedTheme;
+    }
+  } catch (e) {
+    // キャッシュが読めなくても、ページ表示と残りの初期化を止めない。
+  }
   
   // ちらつき防止: 最初はopacity:0、スタイル適用後に表示
   const hidingStyle = document.createElement('style');
