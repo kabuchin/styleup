@@ -518,7 +518,7 @@ function applyThemeToFrames() {
  * 完全な設定を適用（新UI対応）
  */
 function applyFullSettings(settings) {
-  console.log('完全な設定を適用:', settings);
+  console.log('完全な設定を適用しました');
   
   // ベーステーマ適用
   if (settings.baseTheme === 'dark') {
@@ -2661,7 +2661,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       applyCourseFontSize(message.settings.courseFontSize);
     }
     
-    console.log('設定を更新しました:', window.styleupSettings);
+    console.log('設定を更新しました');
     sendResponse({ success: true });
     return true;
   }
